@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>扫码获取下载地址</title>
+</head>
+<style>
+  body {
+    overflow: hidden;
+  }
+  .wrapper {
+    width: 80%;
+    border: 1px dashed red;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+  }
+
+  .text {
+    color: red;
+    padding: 0 3px;
+    font-size: 28px;
+    font-weight: bold;
+  }
+</style>
+
+<body>
+  <div class="wrapper">
+    <img src="http://cloud.geekbuluo.com/wp-content/uploads/2020/06/qrcode.jpg" alt="" width="100" />
+    <div style="margin-left: 10px;">
+      <div style="font-size: 24px; color: blue; font-weight: bold;">扫码关注公众号</div>
+      <div>回复<span id="qrcode" class="text"></span>获得下载地址</div>
+    </div>
+  </div>
+</body>
+<script>
+  function parseUrl() {
+    var url = window.location.href
+    const pattern = /(\w+)=(\w+|[\u4E00-\u9FA5]+)/ig;
+    const parames = {};
+    url.replace(pattern, (a, b, c) => {
+      parames[b] = decodeURIComponent(c);
+    });
+    return parames;
+  }
+  document.querySelector('#qrcode').innerHTML = parseUrl().qrcode;
+
+</script>
+</html>
