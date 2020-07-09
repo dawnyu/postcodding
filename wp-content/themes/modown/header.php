@@ -37,7 +37,7 @@
         <a href="javascript:;" class="search-loader" title="搜索"><i class="icon icon-search"></i></a>
       </li>
       <?php if(!is_user_logged_in()){?>
-      <li class="nav-login no"><a href="/wxlogin?redirect_to=http://www.baidu.com" class="signin-loader_bak"><i class="icon icon-user"></i><span>登录</span></a><?php if(!_MBT('register')){?><b class="nav-line"></b><a href="<?php echo get_permalink(MBThemes_page("template/login.php"));?>?action=register" class="signup-loader"><span>注册</span></a><?php }?></li>
+      <li class="nav-login no"><a href="/wxlogin" class="signin-loader_bak"><i class="icon icon-user"></i><span>登录</span></a><?php if(!_MBT('register')){?><b class="nav-line"></b><a href="<?php echo get_permalink(MBThemes_page("template/login.php"));?>?action=register" class="signup-loader"><span>注册</span></a><?php }?></li>
       <?php }else{ global $current_user;?>
       <li class="nav-login yes"><a href="<?php echo get_permalink(MBThemes_page("template/user.php"));?>"><?php echo get_avatar($current_user->ID,36);?><i class="icon icon-user"></i><?php if(wp_is_erphpdown_active()){ if(getUsreMemberTypeById($current_user->ID)) echo '<span class="vip"></span>'; }?></a>
         <ul class="sub-menu">

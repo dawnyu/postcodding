@@ -37,6 +37,15 @@ jQuery(function($){
         return false;
     });
 
+    function parseUrl(_url) {
+      const pattern = /(\w+)=(\w+|[\u4E00-\u9FA5]+)/ig;
+      const parames = {};
+      _url.replace(pattern, (a, b, c) => {
+        parames[b] = decodeURIComponent(c);
+      });
+      return parames;
+    }
+
     $(".ews-bind-button").click(function(){
       console.log('.ews-bind-button')
         var that = $(this),
@@ -50,7 +59,12 @@ jQuery(function($){
                     "code": code
                 }, function(data) {
                     if(data.status == "1"){
-                        location.reload();
+                        var obj = parseUrl(window.location.href);
+                        if (obj.redirect_to) {
+                          window.history.go(-1);
+                        } else {
+                          location.reload();
+                        }
                     }else if(data.status == "2"){
                         that.removeClass("disabled");
                         that.text("验证绑定");
