@@ -61,7 +61,7 @@ jQuery(function($){
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
                         if (obj.redirect_to) {
-                          window.history.go(-1);
+                          history.go(-2);
                         } else {
                           location.reload();
                         }
