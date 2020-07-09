@@ -505,28 +505,28 @@ var MOBANTU = {
 	login: function(){
 		var that = this;
 		jQuery(function($){
-			// $('.signin-loader, .erphp-login-must').on('click', function(){
-			// 	that.body.addClass('sign-show');
-			// 	if($('.sign .container').hasClass('has-social')){
-			// 		$('.sign .container').height("460px");
-			// 	}else{
-			// 		$('.sign .container').height("430px");
-			// 	}
-			// 	$('#sign-in').show().find('input:first').focus();
-			// 	$('#sign-up').hide();
-			// 	return false;
-			// });
-			// $('.signup-loader').on('click', function(){
-			// 	that.body.addClass('sign-show');
-			// 	if($('.sign .container').hasClass('has-social')){
-			// 		$('.sign .container').height("560px");
-			// 	}else{
-			// 		$('.sign .container').height("530px");
-			// 	}
-			// 	$('#sign-up').show().find('input:first').focus();
-			// 	$('#sign-in').hide();
-			// 	return false;
-			// });
+			$('.signin-loader, .erphp-login-must').on('click', function(){
+				that.body.addClass('sign-show');
+				if($('.sign .container').hasClass('has-social')){
+					$('.sign .container').height("460px");
+				}else{
+					$('.sign .container').height("430px");
+				}
+				$('#sign-in').show().find('input:first').focus();
+				$('#sign-up').hide();
+				return false;
+			});
+			$('.signup-loader').on('click', function(){
+				that.body.addClass('sign-show');
+				if($('.sign .container').hasClass('has-social')){
+					$('.sign .container').height("560px");
+				}else{
+					$('.sign .container').height("530px");
+				}
+				$('#sign-up').show().find('input:first').focus();
+				$('#sign-in').hide();
+				return false;
+			});
 			$('.signclose-loader').on('click', function(){
 				that.body.removeClass('sign-show');
 			});
