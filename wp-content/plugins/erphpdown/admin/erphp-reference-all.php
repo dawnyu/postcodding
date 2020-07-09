@@ -1,8 +1,5 @@
 <?php
-/*
-www.yunziyuan.com.cn
-570602783@qq.com
-*/
+
 if ( !defined('ABSPATH') ) {exit;}
 if(!is_user_logged_in()){
 	exit;

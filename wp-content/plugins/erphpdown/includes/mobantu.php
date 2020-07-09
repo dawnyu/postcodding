@@ -2,7 +2,6 @@
 /*
 mobantu.com
 erphpdown.com
-qq 570602783
 */
 if ( !defined('ABSPATH') ) {exit;}
 function erphp_check_mobantu_theme(){

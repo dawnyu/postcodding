@@ -1,15 +1,12 @@
 <?php
-/*
-www.yunziyuan.com.cn
-570602783@qq.com
-*/
+
 if ( !defined('ABSPATH') ) {exit;}
 if(!is_user_logged_in()){
 	exit;
 }
 
 $total_trade   = $wpdb->get_var("select count(DISTINCT ice_post) as aa from $wpdb->icealipay where ice_success>0");
-/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
+
 $ice_perpage = 20;
 $pages = ceil($total_trade / $ice_perpage);
 $page=isset($_GET['paged']) ?intval($_GET['paged']) :1;

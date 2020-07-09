@@ -38,6 +38,7 @@ jQuery(function($){
     });
 
     $(".ews-bind-button").click(function(){
+      console.log('.ews-bind-button')
         var that = $(this),
             code = that.prev().val();
         if(code){

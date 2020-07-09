@@ -18,7 +18,6 @@ $msg='';
 require_once('paypal/CallerService.php');
 require_once("paypal/APIError.php");
 
-/*  www.yunziyuan.com.cn  */
 
 /* An express checkout transaction starts with a token, that
 identifies to PayPal your transaction

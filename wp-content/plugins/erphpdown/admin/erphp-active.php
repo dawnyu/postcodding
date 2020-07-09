@@ -20,5 +20,5 @@
 	<p class="submit">
 		<input type="button" class="button-primary" name="save" id="mbt-erphpdown-active" value="激活插件"/>
 	</p>
-	<p class="description">插件无域名限制！<br />请勿将激活码告知他人，否则会因为激活码滥用而被封号！<br />激活遇到问题请联系QQ：570602783</p>
+	<p class="description">插件无域名限制！<br />请勿将激活码告知他人，否则会因为激活码滥用而被封号！<br /></p>
 </div>

@@ -123,25 +123,25 @@ $down_days_default = get_option('down_days_default');
 			<tr>
 				<th valign="top">前端用户中心地址</th>
 				<td>
-					<input type="text" id="erphp_url_front_userpage" name="erphp_url_front_userpage" value="<?php echo $erphp_url_front_userpage;?>" class="regular-text" placeholder="http://"/>（例如：http://www.yunziyuan.com.cn/user）
+					<input type="text" id="erphp_url_front_userpage" name="erphp_url_front_userpage" value="<?php echo $erphp_url_front_userpage;?>" class="regular-text" placeholder="http://"/>（例如：http://www.65kr.com/user）
 				</td>
 			</tr>
 			<tr>
 				<th valign="top">前端升级VIP地址</th>
 				<td>
-					<input type="text" id="erphp_url_front_vip" name="erphp_url_front_vip" value="<?php echo $erphp_url_front_vip ; ?>" class="regular-text" placeholder="http://" />（例如：http://www.yunziyuan.com.cn/user?pd=vip）
+					<input type="text" id="erphp_url_front_vip" name="erphp_url_front_vip" value="<?php echo $erphp_url_front_vip ; ?>" class="regular-text" placeholder="http://" />（例如：http://www.65kr.com/user?pd=vip）
 				</td>
 			</tr>
 			<tr>
 				<th valign="top">前端充值地址</th>
 				<td>
-					<input type="text" id="erphp_url_front_recharge" name="erphp_url_front_recharge" value="<?php echo $erphp_url_front_recharge ; ?>" class="regular-text" placeholder="http://"/>（例如：http://www.yunziyuan.com.cn/user?pd=money）
+					<input type="text" id="erphp_url_front_recharge" name="erphp_url_front_recharge" value="<?php echo $erphp_url_front_recharge ; ?>" class="regular-text" placeholder="http://"/>（例如：http://www.65kr.com/user?pd=money）
 				</td>
 			</tr>
 			<tr>
 				<th valign="top">支付成功跳转地址 *</th>
 				<td>
-					<input type="text" id="erphp_url_front_success" name="erphp_url_front_success" value="<?php echo $erphp_url_front_success;?>" class="regular-text" placeholder="http://" />（一般是充值记录页面，例如：http://www.yunziyuan.com.cn/user?pd=history）
+					<input type="text" id="erphp_url_front_success" name="erphp_url_front_success" value="<?php echo $erphp_url_front_success;?>" class="regular-text" placeholder="http://" />（一般是充值记录页面，例如：http://www.65kr.com/user?pd=history）
 				</td>
 			</tr>
 			<tr>

@@ -573,4 +573,3 @@ jQuery(function($){
     });
 
 });
-/* Powered by QQ:570602783 */

@@ -1,15 +1,14 @@
-[ice_purchased_goods]  //ÒÑ¹ºÉÌÆ·
-[ice_purchased_tuiguang]  //ÎÒµÄÍÆ¹ã
-[ice_purchased_tuiguangxiazai]  //ÍÆ¹ãÏÂÔØ
-[ice_purchased_tuiguangvip]  //ÍÆ¹ãvip
-[ice_order_tracking]  //¶©µ¥²éÑ¯
-[ice_my_property]  //ÎÒµÄ×Ê²ú
-[ice_recharge_money]  //³äÖµ
-[ice_cash_application]  //È¡ÏÖÉêÇë
-[ice_cash_application_lists]  //È¡ÏÖÁĞ±í
-[vip_tracking_lists]  //VIP¶©µ¥²éÑ¯
-[ice_vip_member_service]  //VIP»áÔ±·şÎñ
+[ice_purchased_goods]  //å·²è´­å•†å“
+[ice_purchased_tuiguang]  //æˆ‘çš„æ¨å¹¿
+[ice_purchased_tuiguangxiazai]  //æ¨å¹¿ä¸‹è½½
+[ice_purchased_tuiguangvip]  //æ¨å¹¿vip
+[ice_order_tracking]  //è®¢å•æŸ¥è¯¢
+[ice_my_property]  //æˆ‘çš„èµ„äº§
+[ice_recharge_money]  //å……å€¼
+[ice_cash_application]  //å–ç°ç”³è¯·
+[ice_cash_application_lists]  //å–ç°åˆ—è¡¨
+[vip_tracking_lists]  //VIPè®¢å•æŸ¥è¯¢
+[ice_vip_member_service]  //VIPä¼šå‘˜æœåŠ¡
 
-Ê¹ÓÃ·½·¨£ºĞÂ½¨Ò³Ãæ£¬ÔÚ¿ÉÊÓ»¯±à¼­ÏÂÊäÈëÒÔÉÏ¶Ì´úÂë¼´¿É¡£ÀıÈçÊäÈë [ice_purchased_goods] ¼´¿ÉÊÇÒÑ¹ºÉÌÆ·µÄÒ³Ãæ¡£
+ä½¿ç”¨æ–¹æ³•ï¼šæ–°å»ºé¡µé¢ï¼Œåœ¨å¯è§†åŒ–ç¼–è¾‘ä¸‹è¾“å…¥ä»¥ä¸ŠçŸ­ä»£ç å³å¯ã€‚ä¾‹å¦‚è¾“å…¥ [ice_purchased_goods] å³å¯æ˜¯å·²è´­å•†å“çš„é¡µé¢ã€‚
 
-powered by www.yunziyuan.com.cn

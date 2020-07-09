@@ -1,15 +1,10 @@
 <?php
-/*
-www.yunziyuan.com.cn
-570602783@qq.com
-*/
 if ( !defined('ABSPATH') ) {exit;}
 if(!is_user_logged_in()){
 	exit;
 }
 
 $total_trade   = $wpdb->get_var("SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status='publish' and post_type='post' ");
-/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 $ice_perpage = 50;
 $pages = ceil($total_trade / $ice_perpage);
 $page=isset($_GET['paged']) ?intval($_GET['paged']) :1;
