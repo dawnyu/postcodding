@@ -10,23 +10,41 @@ $filename=$_GET['filename'];
 $md5key=$_GET['md5key'];
 $times=$_GET['times'];
 $session_name=$_GET['session_name'];
-
-$filename = $filename;
-$md5key = $md5key;
-$times = $times;
-$session_name = $session_name;
+$index=isset($_GET['index']) ? $_GET['index'] : '';
+$index = esc_sql($index);
 
 if($_GET['id']){
 	$pid = esc_sql($_GET['id']);
 	$ppost = get_post($pid);
 	if(!$ppost) wp_die('下载信息错误！');
 	
-	$memberDown=get_post_meta($pid, 'member_down',TRUE);
-	$price = get_post_meta($pid, 'down_price',TRUE);
+	$memberDown=get_post_meta($pid, 'member_down',true);
+	if($index){
+		$urls = get_post_meta($pid, 'down_urls', true);
+		if($urls){
+			$cnt = count($urls['index']);
+			if($cnt){
+				for($i=0; $i<$cnt;$i++){
+					if($urls['index'][$i] == $index){
+    					$data = $urls['url'][$i];
+    					$price = $urls['price'][$i];
+    					break;
+    				}
+				}
+			}
+		}
+	}else{
+		$data = get_post_meta($pid, 'down_url', true);
+		$price = get_post_meta($pid, 'down_price',true);
+	}
 	$userType=getUsreMemberType();
 
 	$days=get_post_meta($pid, 'down_days', true);
-	$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$pid."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	if($index){
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$pid."' and ice_index='".$index."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}else{
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$pid."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}
 	if($days > 0){
 		$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($hasdown_info->ice_time)));
 		$nowDate = date('Y-m-d H:i:s');
@@ -107,7 +125,7 @@ if($_GET['id']){
 if(abs(time()-$times) < 100){
 	$md5my=md5($user_info->ID.'erphpdown'.$filename.$times.get_option('erphpdown_downkey'));
 	if($md5key==$md5my){
-		$data=get_post_meta($pid, 'down_url', true);
+		
 		$downList=explode("\r\n",trim($data));
 		$file=trim($downList[$filename-1]);
 

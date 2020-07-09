@@ -1,7 +1,7 @@
 <?php
 /*
-www.mobantu.com
-82708210@qq.com
+www.yunziyuan.com.cn
+570602783@qq.com
 */
 if ( !defined('ABSPATH') ) {exit;}
 if(!is_user_logged_in())
@@ -13,7 +13,7 @@ $total_trade   = $wpdb->get_var("SELECT COUNT(ice_id) FROM $wpdb->iceindex");
 $total_money   = $wpdb->get_var("SELECT SUM(ice_price) FROM $wpdb->iceindex");
 
 //分页计算
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 $ice_perpage = 20;
 $pages = ceil($total_trade / $ice_perpage);
 $page=isset($_GET['paged']) ?intval($_GET['paged']) :1;
@@ -21,7 +21,7 @@ $offset = $ice_perpage*($page-1);
 $list = $wpdb->get_results("SELECT * FROM $wpdb->iceindex order by ice_time DESC limit $offset,$ice_perpage");
 ?>
 <div class="wrap">
-	<h2>所有购买index统计</h2>
+	<h2>附加购买隐藏内容统计</h2>
 	<p><?php printf(('共<strong>%s</strong>.'), $total_money); ?></p>
 	<table class="widefat fixed striped posts">
 		<thead>

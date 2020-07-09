@@ -1,8 +1,8 @@
 <?php
 /**
  * setting
- www.mobantu.com
- E-mail:82708210@qq.com
+ www.yunziyuan.com.cn
+ E-mail:570602783@qq.com
  */
  if ( !defined('ABSPATH') ) {exit;}
 
@@ -125,13 +125,13 @@
  			<tr>
  				<th valign="top">购买说明</th>
  				<td>
- 					<textarea id="ice_tips" name="ice_tips" placeholder="客服QQ：82708210" rows="5" cols="70"><?php echo $ice_tips; ?></textarea>
+ 					<textarea id="ice_tips" name="ice_tips" placeholder="客服QQ：570602783" rows="5" cols="70"><?php echo $ice_tips; ?></textarea>
  				</td>
  			</tr>
  			<tr>
  				<th valign="top">免费购买说明</th>
  				<td>
- 					<textarea id="ice_tips_free" name="ice_tips_free" placeholder="客服QQ：82708210" rows="5" cols="70"><?php echo $ice_tips_free; ?></textarea>
+ 					<textarea id="ice_tips_free" name="ice_tips_free" placeholder="客服QQ：570602783" rows="5" cols="70"><?php echo $ice_tips_free; ?></textarea>
  				</td>
  			</tr>
  			<tr>
@@ -144,7 +144,7 @@
  			<tr>
  				<th valign="top">Mycred积分兑换</th>
  				<td>
- 					<input type="checkbox" id="erphp_mycred" name="erphp_mycred" value="yes" <?php if($erphp_mycred == 'yes') echo 'checked'; ?> /> （需安装<a href="https://wordpress.org/plugins/mycred/" target="_blank">mycred插件</a>与<a href="http://www.mobantu.com/6017.html" target="_blank">erphpdown集成mycred插件</a>） 兑换比例：
+ 					<input type="checkbox" id="erphp_mycred" name="erphp_mycred" value="yes" <?php if($erphp_mycred == 'yes') echo 'checked'; ?> /> （需安装<a href="https://wordpress.org/plugins/mycred/" target="_blank">mycred插件</a>与<a href="http://www.yunziyuan.com.cn/6017.html" target="_blank">erphpdown集成mycred插件</a>） 兑换比例：
  					<input type="number" id="erphp_to_mycred" name="erphp_to_mycred" value="<?php echo $erphp_to_mycred; ?>" style="width:100px" />（输入100则为 100积分 = 1<?php echo $erphpdown_payname;?>）
  				</td>
  			</tr>
@@ -230,7 +230,7 @@
  		</table>
  		<p class="submit">
  			<input type="submit" name="Submit" value="保存设置" class="button-primary"/>
- 			<div >技术支持：mobantu.com <a href="http://www.mobantu.com/6658.html" target="_blank">使用教程>></a></div>
+ 			<div >技术支持：mobantu.com <a href="http://www.yunziyuan.com.cn/6658.html" target="_blank">使用教程>></a></div>
  		</p>      
  	</form>
  	<script>

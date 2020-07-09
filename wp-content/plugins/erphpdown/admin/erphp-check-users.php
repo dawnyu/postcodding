@@ -77,7 +77,7 @@ if(!is_user_logged_in())
 					}
 					else
 					{
-						echo '<tr><td colspan="3" align="center"><strong>没有记录</strong></td></tr>';
+						echo '<tr><td colspan="2" align="center"><strong>没有记录</strong></td></tr>';
 					}
 					?>
 				</tbody>
@@ -131,11 +131,10 @@ if(!is_user_logged_in())
 			<table class="widefat">
 				<thead>
 					<tr>
-						<th width="8%">订单号</th>
-						<th width="25%">商品名称</th>
-						<th width="5%">价格</th>
-						<th width="15%">交易时间</th>
-						<th width="15%">继续下载</th>
+						<th>订单号</th>
+						<th>商品名称</th>
+						<th>价格</th>
+						<th>交易时间</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -148,13 +147,12 @@ if(!is_user_logged_in())
 							echo "<td>$value->ice_title</td>\n";
 							echo "<td>$value->ice_price</td>\n";
 							echo "<td>$value->ice_time</td>\n";
-							echo "<td><a href='".constant("erphpdown").'download.php?url='.$value->ice_url."' target='_blank'>点击进入下载页面</a></td>\n";
 							echo "</tr>";
 						}
 					}
 					else
 					{
-						echo '<tr><td colspan="3" align="center"><strong>没有记录</strong></td></tr>';
+						echo '<tr><td colspan="4" align="center"><strong>没有记录</strong></td></tr>';
 					}
 					?>
 				</tbody>

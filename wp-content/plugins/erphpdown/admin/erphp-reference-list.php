@@ -1,7 +1,7 @@
 <?php
 /*
-www.mobantu.com
-82708210@qq.com
+www.yunziyuan.com.cn
+570602783@qq.com
 */
 if ( !defined('ABSPATH') ) {exit;}
 $user_Info   = wp_get_current_user();
@@ -50,7 +50,7 @@ $list = $wpdb->get_results("SELECT * FROM $wpdb->icealipay where ice_success=1 a
 			}
 			else
 			{
-				echo '<tr><td colspan="4" align="center"><strong>没有推广记录</strong></td></tr>';
+				echo '<tr><td colspan="5" align="center"><strong>没有推广记录</strong></td></tr>';
 			}
 			?>
 		</tbody>

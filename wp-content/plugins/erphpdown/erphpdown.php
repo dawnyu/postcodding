@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: ErphpDown
-Plugin URI: http://www.mobantu.com/1780.html
+Plugin URI: http://www.yunziyuan.com.cn/1780.html
 Description: 会员推广下载专业版：支持在线支付(支付宝、微信支付、贝宝)，用户推广、提现，发布收费下载与收费内容查看，下载加密，VIP会员权限等功能的插件。
-Version: 10.3
+Version: 11.0
 Author: 模板兔
-Author URI: http://www.mobantu.com
+Author URI: http://www.yunziyuan.com.cn
 */
 if ( ! defined( 'ABSPATH' ) ) exit;
 global $wpdb, $erphpdown_version, $wppay_table_name;
-$erphpdown_version = '10.3';
+$erphpdown_version = '11.0';
 $wpdb->icealipay = $wpdb->prefix.'ice_download';
 $wpdb->iceindex = $wpdb->prefix.'ice_download_index';
 $wpdb->icemoney  = $wpdb->prefix.'ice_money';

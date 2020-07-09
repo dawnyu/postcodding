@@ -1,18 +1,25 @@
 <?php
 /*
 mobantu.com
-qq 82708210
+qq 570602783
 */
 if ( !defined('ABSPATH') ) {exit;}
 
 function erphpdown_metaboxs() {
+	$erphp_down_default = get_option('erphp_down_default');
+	$member_down_default = get_option('member_down_default');
+	$down_price_default = get_option('down_price_default');
+	$down_price_type_default = get_option('down_price_type_default');
+	$down_days_default = get_option('down_days_default');
+
 	$meta_boxes = array(
 		array(
-			"name"             => "start_down",
+			"name"             => "erphp_down",
 			"title"            => "收费模式 *",
-			"desc"             => "免登录查看请使用短代码隐藏部分内容",
-			"type"             => "erphpcheckbox",
-			"capability"       => "manage_options"
+			"desc"             => "可以通过短代码<code>[erphpdown]隐藏内容[/erphpdown]</code>隐藏部分内容",
+			"type"             => "downradio",
+			"capability"       => "manage_options",
+			'default' => $erphp_down_default?$erphp_down_default:'4',
 		),
 		array(
 			"name"             => "member_down",
@@ -30,15 +37,27 @@ function erphpdown_metaboxs() {
 	            '2' => '5折',
 	            '5' => '8折'
 	        ),
-	        'default' => '1',
+	        'default' => $member_down_default?$member_down_default:'1',
+			"capability"       => "manage_options"
+		),
+		array(
+			"name"             => "down_price_type",
+			"title"            => "价格类型 *",
+			"desc"             => "多价格类型暂不支持免登录、查看模式",
+			"type"             => "typeradio",
+			'options' => array(
+				'0' => '单价格',
+	            '1' => '多价格'
+	        ),
+	        'default' => $down_price_type_default?$down_price_type_default:'0',
 			"capability"       => "manage_options"
 		),
 		array(
 			"name"             => "down_price",
 			"title"            => "收费价格 *",
 			"desc"             => "除VIP专享外，其他必须大于0，否则视为免费资源，免费资源需要先登录才能下载，免登录模式时单位为元",
-			"type"             => "number",
-			'default'          => '0',
+			"type"             => "erphpnumber",
+			'default'          => $down_price_default?$down_price_default:'0',
 			'required'         => '1',
 			"capability"       => "manage_options"
 		),
@@ -47,6 +66,13 @@ function erphpdown_metaboxs() {
 			"title"            => "下载地址 *",
 			"desc"             => "",
 			"type"             => "erphptextarea",
+			"capability"       => "manage_options"
+		),
+		array(
+			"name"             => "down_urls",
+			"title"            => "下载地址 *",
+			"desc"             => "",
+			"type"             => "erphptextareas",
 			"capability"       => "manage_options"
 		),
 		array(
@@ -68,7 +94,7 @@ function erphpdown_metaboxs() {
 			"title"            => "过期天数",
 			"desc"             => "留空或0则表示一次购买永久下载，设置一个大于0的数字比如30，则表示购买30天后得重新购买",
 			"type"             => "number",
-			'default'          => '0',
+			'default'          => $down_days_default?$down_days_default:'0',
 			"required"         => "0",
 			"capability"       => "manage_options"
 		)
@@ -102,27 +128,104 @@ function erphpdown_metaboxs() {
 function erphpdown_show_metabox() {
 	global $post;
 	$meta_boxes = erphpdown_metaboxs(); 
-	echo '<style>
+?>
+	<style>
 	.erphpdown-metabox-item{padding-left:100px;position:relative;margin:1em 0}
+	.erphpdown-metabox-item-pricetype1{display:none}
 	.erphpdown-metabox-item label.title{position:absolute;left:0;top:0;display:inline-block;font-weight:bold;width:100px;vertical-align:top}
-	</style><div style="border:1px dashed #ccc;padding:5px 8px;">收费隐藏短代码 <code>[erphpdown]部分隐藏内容[/erphpdown]</code>；文章内多个不同价格的隐藏内容短代码 <code>[erphpdown index=1 price=5]部分隐藏内容1[/erphpdown]</code> <code>[erphpdown index=2 price=6]部分隐藏内容2[/erphpdown]</code>，请确保index与price的唯一性；VIP专属隐藏短代码 <code>[vip type=6]VIP内容[/vip]</code>（type选填，可为6、7、8、9、10，分别对应五种VIP）；购买按钮短代码 <code>[buy id=1]</code>（id指文章的id）；自定义位置的购买下载框短代码 <code>[box]</code>。</div>';
+	.down-urls{position: relative;}
+	.down-urls .down-url{margin-bottom: 5px;border: 1px dashed #ccc;padding: 5px;border-radius: 5px;position: relative;}
+	.down-urls .down-url input, .down-urls .down-url .del-down-url{vertical-align: top;}
+	</style>
+<?php
 	foreach ( $meta_boxes as $meta ) :
 		$value = get_post_meta( $post->ID, $meta['name'], true );
 		if ( $meta['type'] == 'text' )
 			erphpdown_show_text( $meta, $value );
+		elseif ( $meta['type'] == 'erphpnumber' )
+			erphpdown_show_erphpnumber( $meta, $value );
 		elseif ( $meta['type'] == 'number' )
 			erphpdown_show_number( $meta, $value );
 		elseif ( $meta['type'] == 'textarea' )
 			erphpdown_show_textarea( $meta, $value );
 		elseif ( $meta['type'] == 'erphptextarea' )
 			erphpdown_show_erphptextarea( $meta, $value );
+		elseif ( $meta['type'] == 'erphptextareas' )
+			erphpdown_show_erphptextareas( $meta, $value );
 		elseif ( $meta['type'] == 'checkbox' )
 			erphpdown_show_checkbox( $meta, $value );
-		elseif ( $meta['type'] == 'erphpcheckbox' )
-			erphpdown_show_erphpcheckbox( $meta, $value );
+		elseif ( $meta['type'] == 'downradio' )
+			erphpdown_show_downradio( $meta, $value );
 		elseif ($meta['type'] == 'vipradio')
 			erphpdown_show_vipradio( $meta, $value );
-	endforeach; 
+		elseif ($meta['type'] == 'typeradio')
+			erphpdown_show_typeradio( $meta, $value );
+	endforeach;
+?>
+	<fieldset style="border:1px solid #ccc;padding:5px 8px;border-radius: 4px;"><legend>短代码使用指南</legend>- 收费隐藏短代码 <code>[erphpdown]部分隐藏内容[/erphpdown]</code>，多价格类型不建议使用短代码；文章内附加购买隐藏内容短代码 <code>[erphpdown index=1 price=5]部分隐藏内容1[/erphpdown]</code> <code>[erphpdown index=2 price=6]部分隐藏内容2[/erphpdown]</code>，请确保每个index的唯一性且为大于等于1的整数；<br>- VIP专属隐藏短代码 <code>[vip type=6]VIP内容[/vip]</code>（type选填，可为6、7、8、9、10，分别对应五种VIP）；<br>- 购买按钮短代码 <code>[buy id=1]</code>（id指文章的id，暂时只支持单价格类型）；<br>- 自定义位置的购买下载框短代码 <code>[box]</code>。</fieldset>
+	<script>
+		jQuery(function(){
+			if(jQuery("input[name='erphp_down'].nologin").is(":checked")){
+				jQuery("input[name='member_down'].login").parent().hide();
+			}
+			if(jQuery("input[name='erphp_down'].noprice").is(":checked")){
+				jQuery("input[name='down_price_type'].pricetype1").parent().hide();
+			}
+		});
+		jQuery("input[name='erphp_down']").click(function(){
+			if(jQuery(this).hasClass("nologin")){
+				jQuery("input[name='member_down'].login").parent().hide();
+			}else{
+				jQuery("input[name='member_down'].login").parent().show();
+			}
+
+			if(jQuery(this).hasClass("noprice")){
+				jQuery("input[name='down_price_type'].pricetype1").parent().hide();
+			}else{
+				jQuery("input[name='down_price_type'].pricetype1").parent().show();
+			}
+		});
+
+		jQuery(function(){
+			if(jQuery("input[name='down_price_type'].pricetype1").is(":checked")){
+				jQuery(".erphpdown-metabox-item-pricetype0").hide();
+				jQuery(".erphpdown-metabox-item-pricetype1").show();
+			}
+		});
+		jQuery("input[name='down_price_type']").click(function(){
+			if(jQuery(this).hasClass("pricetype1")){
+				jQuery(".erphpdown-metabox-item-pricetype0").hide();
+				jQuery(".erphpdown-metabox-item-pricetype1").show();
+			}else{
+				jQuery(".erphpdown-metabox-item-pricetype1").hide();
+				jQuery(".erphpdown-metabox-item-pricetype0").show();
+			}
+		});
+	</script>
+<?php 
+}
+
+function erphpdown_show_typeradio( $args = array(), $value = false ) {
+	global $pagenow;
+	extract( $args ); ?>
+	<div class="erphpdown-metabox-item">
+		<label class="title"><?php echo $title; ?></label>
+		<?php
+			$i=1;
+            foreach ($options as $key => $option) {
+            	if($pagenow === 'post-new.php') $value=$default;
+            	else{if($value == null) $value = 0;}
+
+            	if($key == 1){$class="pricetype1";}else{$class="";}
+                echo '<span><input type="radio" name="'.$name.'" id="'.$name.$i.'" value="'. esc_attr( $key ) . '" '. checked( $value, $key, false) .' class="'.$class.'"/><label for="'.$name.$i.'">' . esc_html( $option ) . '</label>&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+                $i ++;
+            }
+        ?>
+		<input type="hidden" name="<?php echo $name; ?>_input_name" id="<?php echo $name; ?>_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
+		<br />
+		<p class="description"><?php echo $desc; ?></p>
+	</div>
+	<?php
 }
 
 function erphpdown_show_vipradio( $args = array(), $value = false ) {
@@ -157,11 +260,23 @@ function erphpdown_show_text( $args = array(), $value = false ) {
 	<?php
 }
 
+function erphpdown_show_erphpnumber( $args = array(), $value = false ) {
+	extract( $args ); if(!$value) $value=$default; ?>
+	<div class="erphpdown-metabox-item erphpdown-metabox-item-pricetype0">
+		<label class="title"><?php echo $title; ?></label>
+		<input type="number" min="0" step="0.01" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_html( $value, 1 ); ?>" style="width: 100px;" <?php if($required) echo 'required';?>/>
+		<input type="hidden" name="<?php echo $name; ?>_input_name" id="<?php echo $name; ?>_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
+		<br />
+		<p class="description"><?php echo $desc; ?></p>
+	</div>
+	<?php
+}
+
 function erphpdown_show_number( $args = array(), $value = false ) {
 	extract( $args ); if(!$value) $value=$default; ?>
 	<div class="erphpdown-metabox-item">
 		<label class="title"><?php echo $title; ?></label>
-		<input type="number" min="0" step="0.01" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_html( $value, 1 ); ?>" style="width: 100px;" <?php if($required) echo 'required';?>/>
+		<input type="number" min="0" step="1" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_html( $value, 1 ); ?>" style="width: 100px;" <?php if($required) echo 'required';?>/>
 		<input type="hidden" name="<?php echo $name; ?>_input_name" id="<?php echo $name; ?>_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
 		<br />
 		<p class="description"><?php echo $desc; ?></p>
@@ -183,36 +298,36 @@ function erphpdown_show_textarea( $args = array(), $value = false ) {
 
 function erphpdown_show_erphptextarea( $args = array(), $value = false ) {
 	extract( $args ); ?>
-	<div class="erphpdown-metabox-item">
+	<div class="erphpdown-metabox-item erphpdown-metabox-item-pricetype0">
 		<label class="title"><?php echo $title; ?></label>
-		<textarea name="<?php echo $name; ?>" id="<?php echo $name; ?>" cols="60" rows="4" tabindex="30" style="width: 100%;"><?php echo esc_html( $value, 1 ); ?></textarea><a href="javascript:;" class="erphp-add-file button">上传媒体库文件</a> <a href="javascript:;" class="erphp-add-file2 button">上传本地文件</a> <span id="file-progress"></span>
+		<textarea name="<?php echo $name; ?>" id="<?php echo $name; ?>" cols="60" rows="4" tabindex="30" style="width: 100%;"><?php echo esc_html( $value, 1 ); ?></textarea><a href="javascript:;" class="erphp-add-file button">上传媒体库文件</a> <a href="javascript:;" class="erphp-add-file2 button button-primary">上传本地文件</a> <span id="file-progress"></span>
 		<input type="hidden" name="<?php echo $name; ?>_input_name" id="<?php echo $name; ?>_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
 		<br />
 		<p class="description">
 			收费查看模式不用填写，地址一行一个，可外链以及内链。地址格式可为以下任意一种：<a href="javascript:;" class="erphpshowtypes">点击显示格式</a><br>
-			<div class="erphpurltypes" style="display: none;border:1px dashed #eaeaea;padding:5px 8px"><ol><li>/wp-content/uploads/moban-tu.zip</li><li>https://pan.baidu.com/test</li><li>某某地址,https://pan.baidu.com/test,提取码：2587</li><li>某某地址,https://pan.baidu.com/test</li><li>链接: https://pan.baidu.com/s/test 提取码: xxxx 复制这段内容后打开百度网盘手机App，操作更方便哦</li></ol>模板兔提示：1是内链，可加密下载地址；3与4格式用英文半角逗号隔开（名称,下载地址,提取码或解压密码），不能有空格；5是<b>网页版百度网盘</b>默认分享格式（名称 下载地址 提取码名称 提取码），英文空格分割，最后面那句广告可以去掉</div>
+			<fieldset class="erphpurltypes" style="display: none;border:1px solid #ccc;padding:5px 8px;border-radius: 4px;"><legend>下载地址格式</legend><ol><li>/wp-content/uploads/moban-tu.zip</li><li>https://pan.baidu.com/test</li><li>某某地址,https://pan.baidu.com/test,提取码：2587</li><li>某某地址,https://pan.baidu.com/test</li><li>链接: https://pan.baidu.com/s/test 提取码: xxxx</li></ol>模板兔提示：1是内链，可加密下载地址；3与4格式用英文半角逗号隔开（名称,下载地址,提取码或解压密码），不能有空格；5是<b>网页版百度网盘</b>默认分享格式（名称 下载地址 提取码名称 提取码），英文空格分割</fieldset>
 		</p>	
 		<script src="<?php echo ERPHPDOWN_URL;?>/static/jquery.form.js"></script>
 		<script>
-	        jQuery(document).ready(function() {
-	            var $ = jQuery;
-	            if ( typeof wp !== 'undefined' && wp.media && wp.media.editor) {
-	                $(document).on('click', '.erphp-add-file', function(e) {
-	                    e.preventDefault();
-	                    var button = $(this);
-	                    var id = button.prev();
-	                    wp.media.editor.send.attachment = function(props, attachment) {
-	                        //console.log(attachment)
-	                        if($.trim(id.val()) != ''){
-								id.val(id.val()+'\n'+attachment.url);
-							}else{
-								id.val(attachment.url);	
-							}
-	                    };
-	                    wp.media.editor.open(button);
-	                    return false;
-	                });
-	            }
+	        jQuery(function($) {
+	            
+                $(document).on('click', '.erphp-add-file', function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    var id = button.prev();
+                    var original_send = wp.media.editor.send.attachment;
+                    wp.media.editor.send.attachment = function(props, attachment) {
+                        if($.trim(id.val()) != ''){
+							id.val(id.val()+'\n'+attachment.url);
+						}else{
+							id.val(attachment.url);	
+						}
+						wp.media.editor.send.attachment = original_send; 
+                    };
+                    wp.media.editor.open(button);
+                    return false;
+                });
+	            
 
 	            $(".erphpshowtypes").click(function(){
 	            	if($(this).hasClass('active')){
@@ -251,7 +366,105 @@ function erphpdown_show_erphptextarea( $args = array(), $value = false ) {
                         });
 
                     });
+                    return false;
                 });
+	            
+	        });
+	    </script>	
+	</div>
+	<?php
+}
+
+function erphpdown_show_erphptextareas( $args = array(), $value = false ) {
+	extract( $args ); 
+	?>
+	<div class="erphpdown-metabox-item erphpdown-metabox-item-pricetype1">
+		<label class="title"><?php echo $title; ?></label>
+		<div class="down-urls">
+			<?php 
+				if($value){
+					$cnt = count($value['index']);
+            		if($cnt){
+            			for($i=0; $i<$cnt;$i++){
+            				echo '<div class="down-url">
+								<input type="number" min="1" step="1" name="down_urls[index][]" value="'.$value['index'][$i].'" placeholder="序号" style="width:8%" required><input type="text" name="down_urls[name][]" value="'.$value['name'][$i].'" placeholder="名称" style="width: 15%" required><input type="number" step="0.01" name="down_urls[price][]" value="'.$value['price'][$i].'" placeholder="价格" style="width: 10%"><div style="display: inline-block;width: 55%;"><textarea name="down_urls[url][]" placeholder="地址" style="width: 100%" rows="2">'.$value['url'][$i].'</textarea><a href="javascript:;" class="erphp-add-url button">上传媒体库文件</a> <a href="javascript:;" class="erphp-add-url2 button button-primary">上传本地文件</a> <span></span></div> <a href="javascript:;" class="del-down-url">删除</a>
+							</div>';
+            			}
+            		}
+				}
+			?>
+		</div>
+
+		<input type="hidden" name="<?php echo $name; ?>_input_name" id="<?php echo $name; ?>_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
+		<p class="description">
+			<button class="button add-down-url" type="button">+ 添加地址</button> 序号确保每个唯一，地址一行一个，可外链以及内链。地址格式可为以下任意一种：<a href="javascript:;" class="erphpshowtypes2">点击显示格式</a><br>
+			<fieldset class="erphpurltypes2" style="display: none;border:1px solid #ccc;padding:5px 8px;border-radius: 4px;"><legend>下载地址格式</legend><ol><li>/wp-content/uploads/moban-tu.zip</li><li>https://pan.baidu.com/test</li><li>某某地址,https://pan.baidu.com/test,提取码：2587</li><li>某某地址,https://pan.baidu.com/test</li><li>链接: https://pan.baidu.com/s/test 提取码: xxxx</li></ol>模板兔提示：1是内链，可加密下载地址；3与4格式用英文半角逗号隔开（名称,下载地址,提取码或解压密码），不能有空格；5是<b>网页版百度网盘</b>默认分享格式（名称 下载地址 提取码名称 提取码），英文空格分割</fieldset>
+		</p>	
+		<script src="<?php echo ERPHPDOWN_URL;?>/static/jquery.form.js"></script>
+		<script>
+	        jQuery(function($) {
+	        	$(".add-down-url").click(function(){
+		            $(".down-urls").append('<div class="down-url"><input type="number" min="1" step="1" name="down_urls[index][]" placeholder="序号" style="width:8%" required><input type="text" name="down_urls[name][]" placeholder="名称" style="width: 15%" required><input type="number" step="0.01" name="down_urls[price][]" placeholder="价格" style="width: 10%"><div style="display: inline-block;width: 55%;"><textarea name="down_urls[url][]" placeholder="地址" style="width: 100%" rows="2"></textarea><a href="javascript:;" class="erphp-add-url button">上传媒体库文件</a> <a href="javascript:;" class="erphp-add-url2 button button-primary">上传本地文件</a> <span></span></div> <a href="javascript:;" class="del-down-url">删除</a></div>');
+		            return false;
+		        });
+
+		        $(document).on("click",".del-down-url",function(){
+		            $(this).parent().remove();
+		        });
+	            
+                $(document).on('click', '.erphp-add-url', function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    var id = button.prev();
+                    var original_send = wp.media.editor.send.attachment;
+                    wp.media.editor.send.attachment = function(props, attachment) {
+                        if($.trim(id.val()) != ''){
+							id.val(id.val()+'\n'+attachment.url);
+						}else{
+							id.val(attachment.url);	
+						}
+						wp.media.editor.send.attachment = original_send; 
+                    };
+                    wp.media.editor.open(button);
+                    return false;
+                });
+
+	            $(document).on("click", ".erphp-add-url2", function(){
+	            	var button = $(this);
+                    var id = button.prev().prev();
+                    $("body").append('<form style="display:none" id="erphpFileForm" action="<?php echo ERPHPDOWN_URL;?>/admin/action/file.php" enctype="multipart/form-data" method="post"><input type="file" id="erphpFile" name="erphpFile"></form>');
+                    $("#erphpFile").trigger('click');
+                    $("#erphpFile").change(function(){
+                        $("#erphpFileForm").ajaxSubmit({
+                            uploadProgress: function(event, position, total, percentComplete) {
+                                button.next().text(percentComplete+'%');
+                            },
+                            success: function(data) {
+                                $('#erphpFileForm').remove();
+                                if($.trim(id.val()) != ''){
+                                	id.val(id.val()+'\n'+data);   
+                                }else{
+                                    id.val(data);   
+                                }
+                            },
+                            error:function(xhr){
+                                $('#erphpFileForm').remove();
+                                alert('上传失败！'); 
+                            }
+                        });
+
+                    });
+                    return false;
+                });
+
+                $(".erphpshowtypes2").click(function(){
+	            	if($(this).hasClass('active')){
+	            		$(".erphpurltypes2").hide();
+	            	}else{
+	            		$(".erphpurltypes2").show();
+	            	}
+	            	$(this).toggleClass("active");
+	            });
 	            
 	        });
 	    </script>	
@@ -271,22 +484,30 @@ function erphpdown_show_checkbox( $args = array(), $value = false ) {
 	</div>
 <?php }
 
-function erphpdown_show_erphpcheckbox( $args = array(), $value = false ) {
-	extract( $args ); ?>
+function erphpdown_show_downradio( $args = array(), $value = false ) {
+	extract( $args ); 
+	global $post, $pagenow;
+	$value1 = get_post_meta( $post->ID, 'start_down', true );
+	$value2 = get_post_meta( $post->ID, 'start_see', true );
+	$value3 = get_post_meta( $post->ID, 'start_see2', true );
+	$value5 = get_post_meta( $post->ID, 'start_down2', true );
+	?>
 	<div class="erphpdown-metabox-item">
 		<label class="title"><?php echo $title; ?></label>
-		<?php 
-		global $post;
-		$value1 = get_post_meta( $post->ID, 'start_down', true );
-		$value2 = get_post_meta( $post->ID, 'start_see', true );
-		$value3 = get_post_meta( $post->ID, 'start_see2', true );
-		$value5 = get_post_meta( $post->ID, 'start_down2', true );
-		?>
-		<input type="radio" name="start_down" checked value="4" />不启用&nbsp;
-		<input type="radio" name="start_down" <?php if($value1 == 'yes') echo 'checked'?> value="1" />下载 &nbsp;
-		<input type="radio" name="start_down" <?php if($value5 == 'yes') echo 'checked'?> value="5" class="nologin"/>免登录 &nbsp;
-		<input type="radio" name="start_down" <?php if($value2 == 'yes') echo 'checked'?> value="2" />查看 &nbsp;
-		<input type="radio" name="start_down" <?php if($value3 == 'yes') echo 'checked'?> value="3" />部分查看&nbsp;
+
+		<?php if($pagenow === 'post-new.php'){?>
+		<input type="radio" name="erphp_down" id="erphp_down4" <?php if($default == '4') echo 'checked'?> value="4" /><label for="erphp_down4">不启用</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down1" <?php if($default == '1') echo 'checked'?> value="1" /><label for="erphp_down1">下载</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down5" <?php if($default == '5') echo 'checked'?> value="5" class="nologin noprice"/><label for="erphp_down5">免登录</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down2" <?php if($default == '2') echo 'checked'?> value="2" class="noprice"/><label for="erphp_down2">查看</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down3" <?php if($default == '3') echo 'checked'?> value="3" class="noprice"/><label for="erphp_down3">部分查看</label>
+		<?php }else{?>
+		<input type="radio" name="erphp_down" id="erphp_down4" checked value="4" /><label for="erphp_down4">不启用</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down1" <?php if($value1 == 'yes') echo 'checked'?> value="1" /><label for="erphp_down1">下载</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down5" <?php if($value5 == 'yes') echo 'checked'?> value="5" class="nologin noprice"/><label for="erphp_down5">免登录</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down2" <?php if($value2 == 'yes') echo 'checked'?> value="2" class="noprice"/><label for="erphp_down2">查看</label> &nbsp;
+		<input type="radio" name="erphp_down" id="erphp_down3" <?php if($value3 == 'yes') echo 'checked'?> value="3" class="noprice"/><label for="erphp_down3">部分查看</label>
+		<?php }?>
 
 		<input type="hidden" name="erphpdown" value="1">
 		<input type="hidden" name="start_down_input_name" id="start_down_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
@@ -294,20 +515,7 @@ function erphpdown_show_erphpcheckbox( $args = array(), $value = false ) {
 		<input type="hidden" name="start_see_input_name" id="start_see_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
 		<input type="hidden" name="start_see2_input_name" id="start_see2_input_name" value="<?php echo wp_create_nonce( plugin_basename( __FILE__ ) ); ?>" />
 		<p class="description"><?php echo $desc; ?></p>
-		<script>
-			jQuery(function(){
-				if(jQuery("input[name='start_down'].nologin").is(":checked")){
-					jQuery("input[name='member_down'].login").parent().hide();
-				}
-			});
-			jQuery("input[name='start_down']").click(function(){
-				if(jQuery(this).hasClass("nologin")){
-					jQuery("input[name='member_down'].login").parent().hide();
-				}else{
-					jQuery("input[name='member_down'].login").parent().show();
-				}
-			});
-		</script>
+		
 	</div>
 <?php }
 
@@ -336,7 +544,7 @@ function erphpdown_save_metabox( $post_id ) {
 
 	$meta_boxes = array_merge( erphpdown_metaboxs() );
 	foreach ( $meta_boxes as $meta_box ) :
-		if($meta_box['type'] == 'erphpcheckbox'){
+		if($meta_box['type'] == 'downradio'){
 
 			if ( !wp_verify_nonce( $_POST['start_down_input_name'], plugin_basename( __FILE__ ) ) || !wp_verify_nonce( $_POST['start_see_input_name'], plugin_basename( __FILE__ ) ) || !wp_verify_nonce( $_POST['start_see2_input_name'], plugin_basename( __FILE__ ) ) || !wp_verify_nonce( $_POST['start_down2_input_name'], plugin_basename( __FILE__ ) ) )
 				return $post_id;
@@ -345,17 +553,40 @@ function erphpdown_save_metabox( $post_id ) {
 			elseif ( 'post' == $_POST['post_type'] && !current_user_can( 'edit_post', $post_id ) )
 				return $post_id;
 
-			if(isset($_POST['start_down'])){
-				$data = stripslashes( $_POST['start_down'] );
+			if(isset($_POST['erphp_down'])){
+				$data = stripslashes( $_POST['erphp_down'] );
 				$data1 = '';$data2='';$data3='';$data5='';
-				if($data == '1') $data1 = 'yes';
-				if($data == '2') $data2 = 'yes';
-				if($data == '3') $data3 = 'yes';
-				if($data == '5') $data5 = 'yes';
-				update_post_meta( $post_id, 'start_down', $data1 );
-				update_post_meta( $post_id, 'start_see', $data2 );
-				update_post_meta( $post_id, 'start_see2', $data3 );
-				update_post_meta( $post_id, 'start_down2', $data5 );
+				if($data == '1'){
+					$data1 = 'yes';
+					update_post_meta( $post_id, 'start_down', 'yes' );
+					delete_post_meta( $post_id, 'start_down2');
+					delete_post_meta( $post_id, 'start_see');
+					delete_post_meta( $post_id, 'start_see2');
+				}elseif($data == '2'){
+					$data2 = 'yes';
+					update_post_meta( $post_id, 'start_see', 'yes' );
+					delete_post_meta( $post_id, 'start_down2');
+					delete_post_meta( $post_id, 'start_down');
+					delete_post_meta( $post_id, 'start_see2');
+				}elseif($data == '3'){
+					$data2 = 'yes';
+					update_post_meta( $post_id, 'start_see2', 'yes' );
+					delete_post_meta( $post_id, 'start_down2');
+					delete_post_meta( $post_id, 'start_down');
+					delete_post_meta( $post_id, 'start_see');
+				}elseif($data == '5'){
+					$data2 = 'yes';
+					update_post_meta( $post_id, 'start_down2', 'yes' );
+					delete_post_meta( $post_id, 'start_see');
+					delete_post_meta( $post_id, 'start_down');
+					delete_post_meta( $post_id, 'start_see2');
+				}else{
+					delete_post_meta( $post_id, 'start_down');
+					delete_post_meta( $post_id, 'start_down2');
+					delete_post_meta( $post_id, 'start_see');
+					delete_post_meta( $post_id, 'start_see2');
+				}
+				update_post_meta( $post_id, $meta_box['name'], $data );
 			}
 		}else{
 			if (!wp_verify_nonce( $_POST[$meta_box['name'] . '_input_name'], plugin_basename( __FILE__ ) ))
@@ -366,7 +597,7 @@ function erphpdown_save_metabox( $post_id ) {
 				return $post_id;
 
 			
-			$data = stripslashes( $_POST[$meta_box['name']] );
+			$data = $_POST[$meta_box['name']];
 			if ( get_post_meta( $post_id, $meta_box['name'] ) == '' )
 				add_post_meta( $post_id, $meta_box['name'], $data, true );
 			elseif ( $data != get_post_meta( $post_id, $meta_box['name'], true ) )

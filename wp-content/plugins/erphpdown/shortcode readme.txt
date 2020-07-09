@@ -12,4 +12,4 @@
 
 使用方法：新建页面，在可视化编辑下输入以上短代码即可。例如输入 [ice_purchased_goods] 即可是已购商品的页面。
 
-powered by mobantu.com
+powered by www.yunziyuan.com.cn

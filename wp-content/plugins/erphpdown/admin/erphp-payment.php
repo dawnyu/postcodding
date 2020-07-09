@@ -1,8 +1,8 @@
 <?php
 /**
  * setting
- www.mobantu.com
- E-mail:82708210@qq.com
+ www.yunziyuan.com.cn
+ E-mail:570602783@qq.com
  */
  if ( !defined('ABSPATH') ) {exit;}
 
@@ -193,7 +193,7 @@
 				<th valign="top">商户支付密钥(KEY)</th>
 				<td>
 					<input type="text" id="ice_weixin_key" name="ice_weixin_key" value="<?php echo $ice_weixin_key; ?>" class="regular-text"/><br>
-					设置地址：<a href="https://pay.weixin.qq.com/index.php/account/api_cert" target="_blank">https://pay.weixin.qq.com/index.php/account/api_cert </a>，建议为32位字符串<br>设置教程：<a href="https://www.mobantu.com/7919.html" target="_blank">https://www.mobantu.com/7919.html</a>
+					设置地址：<a href="https://pay.weixin.qq.com/index.php/account/api_cert" target="_blank">https://pay.weixin.qq.com/index.php/account/api_cert </a>，建议为32位字符串<br>设置教程：<a href="https://www.yunziyuan.com.cn/7919.html" target="_blank">https://www.yunziyuan.com.cn/7919.html</a>
 				</td>
 			</tr>
 			<tr>
@@ -242,7 +242,7 @@
 
 		<br />
 		<h3>5、Paypy-微信/支付宝免签即时到账（Erphpdown官方接口）</h3>
-		<div>详情请看：<a href="http://www.mobantu.com/8080.html" target="_blank" rel="nofollow">http://www.mobantu.com/8080.html</a></div>
+		<div>详情请看：<a href="http://www.yunziyuan.com.cn/8080.html" target="_blank" rel="nofollow">http://www.yunziyuan.com.cn/8080.html</a></div>
 		<table class="form-table">
 			<tr>
 				<th valign="top">签名密钥</th>
@@ -343,7 +343,7 @@
 
 		<p class="submit">
 			<input type="submit" name="Submit" value="保存设置" class="button-primary"/>
-			<div >技术支持：mobantu.com <a href="http://www.mobantu.com/6658.html" target="_blank">使用教程>></a></div>
+			<div >技术支持：mobantu.com <a href="http://www.yunziyuan.com.cn/6658.html" target="_blank">使用教程>></a></div>
 		</p>      
 	</form>
 </div>

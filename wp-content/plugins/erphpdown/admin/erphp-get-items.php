@@ -11,7 +11,7 @@ $total_trade   = $wpdb->get_var("SELECT COUNT(ice_id) FROM $wpdb->icealipay WHER
 $total_money   = $wpdb->get_var("SELECT SUM(ice_price) FROM $wpdb->icealipay WHERE ice_success>0 and ice_user_id=".$user_info->ID);
 
 //分页计算
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 $ice_perpage = 20;
 $pages = ceil($total_trade / $ice_perpage);
 $page=isset($_GET['paged']) ?intval($_GET['paged']) :1;
@@ -46,7 +46,7 @@ $list = $wpdb->get_results("SELECT * FROM $wpdb->icealipay where ice_success=1 a
 					echo "<td>$value->ice_price</td>\n";
 					echo "<td>$value->ice_time</td>\n";
 					if($start_down || $start_down2){
-						echo "<td><a href='".constant("erphpdown").'download.php?postid='.$value->ice_post."' target='_blank'>下载</a></td>\n";
+						echo "<td><a href='".constant("erphpdown").'download.php?url='.$value->ice_url."' target='_blank'>下载</a></td>\n";
 					}else{
 						echo "<td><a href='".get_permalink($value->ice_post)."' target='_blank'>查看</a></td>\n";
 					}

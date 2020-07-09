@@ -14,10 +14,13 @@ $postid=isset($_GET['postid']) && is_numeric($_GET['postid']) ?intval($_GET['pos
 $url=isset($_GET['url']) ? $_GET['url'] :false;
 $key=isset($_GET['key']) ? $_GET['key'] :false;
 $iframe=isset($_GET['iframe']) ? $_GET['iframe'] : 0;
+$index=isset($_GET['index']) ? $_GET['index'] : '';
 
 $postid = esc_sql($postid);
 $url = esc_sql($url);
 $key = esc_sql($key);
+$index = esc_sql($index);
+$index_name = '';
 
 if($postid==false && $url==false ){
 	wp_die("下载信息错误！");
@@ -29,14 +32,37 @@ if ($postid){
 		wp_die("下载信息错误！");
 	}
 	$isDown=FALSE;
-	$data=get_post_meta($postid, 'down_url', true);
-	$price=get_post_meta($postid, 'down_price', true);
+
+	if($index){
+		$urls = get_post_meta($postid, 'down_urls', true);
+		if($urls){
+			$cnt = count($urls['index']);
+			if($cnt){
+				for($i=0; $i<$cnt;$i++){
+					if($urls['index'][$i] == $index){
+    					$data = $urls['url'][$i];
+    					$index_name = $urls['name'][$i];
+    					$price = $urls['price'][$i];
+    					break;
+    				}
+				}
+			}
+		}
+	}else{
+		$data=get_post_meta($postid, 'down_url', true);
+		$price=get_post_meta($postid, 'down_price', true);
+	}
+
 	$memberDown=get_post_meta($postid, 'member_down',TRUE);
 	$userType=getUsreMemberType();
 	$user_info=wp_get_current_user();
-
 	$days=get_post_meta($postid, 'down_days', true);
-	$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	if($index){
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_index='".$index."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}else{
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}
+	
 	if($days > 0){
 		$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($hasdown_info->ice_time)));
 		$nowDate = date('Y-m-d H:i:s');
@@ -163,7 +189,24 @@ if ($postid){
 		}
 		$pp = $downPostId;
 		$postid = $downPostId;
-		$data=get_post_meta($downPostId, 'down_url', true);
+		if($down_info->ice_index){
+			$index = $down_info->ice_index;
+			$urls = get_post_meta($postid, 'down_urls', true);
+			if($urls){
+				$cnt = count($urls['index']);
+				if($cnt){
+					for($i=0; $i<$cnt;$i++){
+						if($urls['index'][$i] == $index){
+	    					$data = $urls['url'][$i];
+	    					$index_name = $urls['name'][$i];
+	    					break;
+	    				}
+					}
+				}
+			}
+		}else{
+			$data=get_post_meta($downPostId, 'down_url', true);
+		}
 	}
 	
 	if(!$down_info || !$data)
@@ -172,10 +215,9 @@ if ($postid){
 	}
 }
 
-$data=$data ?$data :$down_info->ice_data;
 $downList=explode("\r\n",trim($data));
-$downMsg = '<div class="title"><span>下载地址</span></div>';
-$downMsg .= '<script src="'.constant("erphpdown").'static/clipboard.min.js"></script><script>var clipboard = new Clipboard(".erphpdown-copy");clipboard.on("success", function(e) {jQuery(e.trigger).text("已复制");});</script>';
+$downMsg = '<div class="title"><span>'.($index_name?$index_name:'下载地址').'</span></div>';
+
 if($key){
 	if(is_numeric($key)){
 		$key=intval($key);
@@ -192,7 +234,7 @@ if($key){
 
 	$file = trim($file);
 
-	header("Location:downloadfile.php?id=".$pp."&filename=".$key."&md5key=".$md5key."&times=".$times."&session_name=".$entemp);
+	header("Location:downloadfile.php?id=".$pp."&filename=".$key."&index=".$index."&md5key=".$md5key."&times=".$times."&session_name=".$entemp);
 	exit;
 	
 }else{
@@ -204,34 +246,34 @@ if($key){
 				$filearr = explode(',',$filepath);
 				$arrlength = count($filearr);
 				if($arrlength == 1){
-					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 				}elseif($arrlength == 2){
-					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 				}elseif($arrlength == 3){
-					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".str_replace('提取码: ', '', $filearr[2])."'>点击下载</a>（".$filearr[2]."）<a class='erphpdown-copy' data-clipboard-text='".str_replace('提取码: ', '', $filearr[2])."' href='javascript:;'>复制</a></p>";
+					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".str_replace('提取码: ', '', $filearr[2])."'>点击下载</a>（".$filearr[2]."）<a class='erphpdown-copy' data-clipboard-text='".str_replace('提取码: ', '', $filearr[2])."' href='javascript:;'>复制</a></p>";
 				}
 			}elseif(strpos($filepath,'  ')){//适用MAC客户端版百度网盘分享
 				$filearr = explode('  ',$filepath);
 				$arrlength = count($filearr);
 				if($arrlength == 1){
-					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 				}elseif($arrlength >= 2){
 					$filearr2 = explode(':',$filearr[0]);
 					$filearr3 = explode(':',$filearr[1]);
-					$downMsg.="<p>".$filearr2[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".$filearr3[1]."'>点击下载</a>（提取码: ".$filearr3[1]."）<a class='erphpdown-copy' data-clipboard-text='".$filearr3[1]."' href='javascript:;'>复制</a></p>";
+					$downMsg.="<p>".$filearr2[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".$filearr3[1]."'>点击下载</a>（提取码: ".$filearr3[1]."）<a class='erphpdown-copy' data-clipboard-text='".$filearr3[1]."' href='javascript:;'>复制</a></p>";
 				}
 			}elseif(strpos($filepath,' ')){//适用网页版百度网盘分享
 				$filearr = explode(' ',$filepath);
 				$arrlength = count($filearr);
 				if($arrlength == 1){
-					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+					$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 				}elseif($arrlength == 2){
-					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+					$downMsg.="<p>".$filearr[0]."<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 				}elseif($arrlength >= 3){
-					$downMsg.="<p>".str_replace(':', '', $filearr[0])."<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".$filearr[3]."' >点击下载</a>（".$filearr[2].' '.$filearr[3]."）<a class='erphpdown-copy' data-clipboard-text='".$filearr[3]."' href='javascript:;'>复制</a></p>";
+					$downMsg.="<p>".str_replace(':', '', $filearr[0])."<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link erphpdown-down-btn' data-clipboard-text='".$filearr[3]."' >点击下载</a>（".$filearr[2].' '.$filearr[3]."）<a class='erphpdown-copy' data-clipboard-text='".$filearr[3]."' href='javascript:;'>复制</a></p>";
 				}
 			}else{
-				$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."' target='_blank' class='link'>点击下载</a></p>";
+				$downMsg.="<p>文件".($k+1)."地址<a href='download.php?postid=".$postid."&key=".($k+1)."&index=".$index."' target='_blank' class='link'>点击下载</a></p>";
 			}
 		}
 	}
@@ -243,6 +285,6 @@ if($key){
 	if(function_exists('MBThemes_erphpdown_download') && !$iframe){
 		MBThemes_erphpdown_download($downMsg,$pp);
 	}else{
-		showMsg($downMsg,$pp);
+		epd_download_page($downMsg,$pp);
 	}
 }

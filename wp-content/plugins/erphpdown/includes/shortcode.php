@@ -14,7 +14,7 @@ add_shortcode( 'vip_tracking_lists','vip_tracking_lists');//VIP订单查询
 add_shortcode( 'ice_vip_member_service','vip_member_service');//VIP会员服务
 
 //已购商品
-function purchased_goods_lists() { 
+function purchased_goods_lists() {
 	if(!is_user_logged_in()){
 		exit;
 	}
@@ -29,7 +29,7 @@ function purchased_goods_lists() {
 		$total_money   = $wpdb->get_var("SELECT SUM(ice_price) FROM $wpdb->icealipay WHERE ice_success>0 and ice_user_id=".$user_info->ID);
 	}
 	//分页计算
-	/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+	/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	$ice_perpage = 20;
 	$pages = ceil($total_trade / $ice_perpage);
 	$page=isset($_GET['p']) ?intval($_GET['p']) :1;
@@ -422,11 +422,6 @@ function vip_member_service() {
 
 	if($_POST['Submit'] && $_POST['Submit']=='确认购买')
 	{
-		//check
-		if(!checkUsreMemberType())
-		{
-			return false;
-		}
 		$userType=isset($_POST['userType']) && is_numeric($_POST['userType']) ?intval($_POST['userType']) :0;
 		if($userType >6 && $userType < 11)
 		{
@@ -477,7 +472,7 @@ function vip_member_service() {
 			showMsgNotice("会员类型错误");
 		}
 	}
-	/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+	/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	$ciphp_life_price    = get_option('ciphp_life_price');
 	$ciphp_year_price    = get_option('ciphp_year_price');
 	$ciphp_quarter_price = get_option('ciphp_quarter_price');
@@ -563,7 +558,7 @@ function my_property() {
 	{
 		$okMoney=$userMoney->ice_have_money - $userMoney->ice_get_money;
 	}
-	/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+	/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	?>
 	<div class="wrap">
 	
@@ -604,7 +599,7 @@ function recharge_money() {
 		exit;
 	}
 
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	if($_POST && $_POST['paytype'])
 	{
 		$paytype=$wpdb->escape(intval($_POST['paytype']));
@@ -775,7 +770,7 @@ function cash_application() {
 	$fee=isset($fee) ?$fee :100;
 	$user_Info   = wp_get_current_user();
 	$userMoney=$wpdb->get_row("select * from ".$wpdb->iceinfo." where ice_user_id=".$user_Info->ID);
-	/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+	/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	if(!$userMoney)
 	{
 		$okMoney=0;

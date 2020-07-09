@@ -4,7 +4,7 @@ $fee=get_option("ice_ali_money_site");
 $fee=isset($fee) ?$fee :100;
 $user_Info   = wp_get_current_user();
 $userMoney=$wpdb->get_row("select * from ".$wpdb->iceinfo." where ice_user_id=".$user_Info->ID);
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 if(!$userMoney)
 {
 	$okMoney=0;

@@ -2,7 +2,7 @@
 /*
 mobantu.com
 erphpdown.com
-qq 82708210
+qq 570602783
 */
 if ( !defined('ABSPATH') ) {exit;}
 function erphp_check_mobantu_theme(){
@@ -52,10 +52,6 @@ function erphp_register_extra_fields($user_id, $password="", $meta=array()) {
 	}
 }
 add_action('user_register', 'erphp_register_extra_fields');
-
-function showMsgNotice($msg,$color=FALSE){
-	echo '<div class="updated settings-error"><p>'.$msg.'</p></div>';
-}
 
 function erphp_noadmin_redirect(){
 	global $wpdb;
@@ -199,6 +195,7 @@ function getUsreMemberTypeEndTime(){
 	}
 	return FALSE;
 }
+
 function getUsreMemberTypeEndTimeById($uid){
 	global $wpdb;
 	$userTypeInfo=$wpdb->get_row("select * from  ".$wpdb->iceinfo." where ice_user_id=".$uid);
@@ -208,11 +205,13 @@ function getUsreMemberTypeEndTimeById($uid){
 	}
 	return FALSE;
 }
+
 function versioncheck(){
 	$url='http://api.mobantu.com/erphpdown/update.php';  
 	$result=file_get_contents($url);  
 	return $result;
 }
+
 function plugin_check_card(){
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	if(!is_plugin_active( 'erphpdown-add-on-card/erphpdown-add-on-card.php' )){
@@ -222,6 +221,7 @@ function plugin_check_card(){
 		return 1;
 	}
 }
+
 function plugin_check_cred(){
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	if(!is_plugin_active( 'erphpdown-add-on-mycred/erphpdown-add-on-mycred.php' )){
@@ -231,6 +231,7 @@ function plugin_check_cred(){
 		return 1;
 	}
 }
+
 function plugin_check_video(){
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	if(!is_plugin_active( 'erphpdown-addon-video/erphpdown-addon-video.php' )){
@@ -240,6 +241,7 @@ function plugin_check_video(){
 		return 1;
 	}
 }
+
 function plugin_check_activation(){
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	if(!is_plugin_active( 'erphpdown-add-on-activation/erphpdown-add-on-activation.php' )){
@@ -249,18 +251,7 @@ function plugin_check_activation(){
 		return 1;
 	}
 }
-function checkUsreMemberType(){
-	global $wpdb;
-	$user_info = wp_get_current_user();
-	$sql="select * from  ".$wpdb->iceinfo." where ice_user_id=".$user_info->ID;
-	$info=$wpdb->get_row($sql);
-	if(!$info)
-	{
-		showMsgNotice("您的账户余额不足，请先充值!");
-		return FALSE;
-	}
-	return true;
-}
+
 
 function userPayMemberSetData($userType){
 	date_default_timezone_set('Asia/Shanghai');
@@ -441,33 +432,36 @@ function erphp_admin_pagenavi($total_count, $number_per_page=15){
 	<?php
 }
 
-
 add_filter('admin_footer_text', 'erphp_left_admin_footer_text'); 
 function erphp_left_admin_footer_text($text) {
 	$text = '<span id="footer-thankyou">感谢使用<a href=http://cn.wordpress.org/ >WordPress</a>进行创作，使用<a href="http://www.erphpdown.com">Erphpdown</a>进行网站VIP支付下载功能。</span>'; 
 	return $text;
 }
 
-function erphpSetUserOrderIsSuccess($orderNum,$total_fee)
-{
+function epd_set_order_success($order_num,$total_fee,$pay_method=''){
 	date_default_timezone_set('Asia/Shanghai');
 	global $wpdb;
-	$money_info=$wpdb->get_row("select * from ".$wpdb->icemoney." where ice_num='".$wpdb->escape($orderNum)."'");
+	$money_info=$wpdb->get_row("select * from ".$wpdb->icemoney." where ice_num='".$wpdb->escape($order_num)."'");
 	if($money_info){
 		if(!$money_info->ice_success){
+			if($pay_method == 'paypy'){
+				$total_fee = $money_info->ice_money;
+			}
+
 			if(!$money_info->ice_post_id && !$money_info->ice_user_type){
 				$epd_game_price  = get_option('epd_game_price');
 		        if($epd_game_price){
-		          $cnt = count($epd_game_price['buy']);
-		          for($i=0; $i<$cnt;$i++){
-		            if($total_fee == $epd_game_price['buy'][$i]){
-		              $total_fee = $epd_game_price['get'][$i];
-		              break;
-		            }
-		          }
+		          	$cnt = count($epd_game_price['buy']);
+		          	for($i=0; $i<$cnt;$i++){
+			            if($total_fee == $epd_game_price['buy'][$i]){
+			              	$total_fee = $epd_game_price['get'][$i];
+			              	break;
+			            }
+		          	}
 		        }
 		    }
-			$updatOrder=$wpdb->query("update $wpdb->icemoney set ice_success=1, ice_money = '".$total_fee*get_option('ice_proportion_alipay')."', ice_success_time = '".date("Y-m-d H:i:s")."' where ice_num='".$wpdb->escape($orderNum)."'");
+
+			$updatOrder=$wpdb->query("update $wpdb->icemoney set ice_success=1, ice_money = '".$total_fee*get_option('ice_proportion_alipay')."', ice_alipay = '".$pay_method."', ice_success_time = '".date("Y-m-d H:i:s")."' where ice_num='".$wpdb->escape($order_num)."'");
 			if($updatOrder){
 				addUserMoney($money_info->ice_user_id,$total_fee*get_option('ice_proportion_alipay'));
 			}
@@ -475,14 +469,34 @@ function erphpSetUserOrderIsSuccess($orderNum,$total_fee)
 			if($money_info->ice_post_id){
 				$okMoney=erphpGetUserOkMoneyById($money_info->ice_user_id);
                 $postid = $money_info->ice_post_id;
+                $index = '';$index_name = '';
                 $price=$total_fee*get_option('ice_proportion_alipay');
                 if($okMoney >= $price){
                     if(erphpSetUserMoneyXiaoFeiByUid($price,$money_info->ice_user_id))
                     {
+                    	if($money_info->ice_post_index){
+                    		$index = $money_info->ice_post_index;
+                    		$urls = get_post_meta($postid, 'down_urls', true);
+							if($urls){
+								$cnt = count($urls['index']);
+								if($cnt){
+									for($i=0; $i<$cnt;$i++){
+										if($urls['index'][$i] == $index){
+					    					$index_name = $urls['name'][$i];
+					    					break;
+					    				}
+									}
+								}
+							}
+                    	}
+
                         $subject   = get_post($postid)->post_title;
+                        if($index_name){
+							$subject .= ' - '.$index_name;
+						}
                         $postUserId=get_post($postid)->post_author;
-                        $data=get_post_meta($postid, 'down_url', true);
-                        $result=erphpAddDownloadByUid($subject, $postid, $money_info->ice_user_id,$price,1, '', $postUserId);
+                        
+                        $result=erphpAddDownloadByUid($subject, $postid, $money_info->ice_user_id,$price,1, '', $postUserId, $index);
                         if($result)
                         {
                         	$down_activation = get_post_meta($postid, 'down_activation', true);
@@ -510,18 +524,16 @@ function erphpSetUserOrderIsSuccess($orderNum,$total_fee)
                     }
                 }
 			}elseif($money_info->ice_user_type){
-					addUserMoney($money_info->ice_user_id, '-'.$total_fee*get_option('ice_proportion_alipay'));
-					userSetMemberSetData($money_info->ice_user_type,$money_info->ice_user_id);
-					addVipLogByAdmin($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_type, $money_info->ice_user_id);
-
-					
-					$EPD = new EPD();
-					$EPD->doAff($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_id);
-						
-				}
+				addUserMoney($money_info->ice_user_id, '-'.$total_fee*get_option('ice_proportion_alipay'));
+				userSetMemberSetData($money_info->ice_user_type,$money_info->ice_user_id);
+				addVipLogByAdmin($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_type, $money_info->ice_user_id);
+				$EPD = new EPD();
+				$EPD->doAff($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_id);	
+			}
 		}
 	}
 }
+
 function erphpCheckAlipayReturnNum($orderNum,$money)
 {
 	global $wpdb;
@@ -535,7 +547,7 @@ function erphpCheckAlipayReturnNum($orderNum,$money)
 	}
 	return false;
 }
-function erphpAddDownloadByUid($subject,$postid,$userid,$price,$success,$data,$postUserId)
+function erphpAddDownloadByUid($subject,$postid,$userid,$price,$success,$data,$postUserId,$index='')
 {
 	date_default_timezone_set('Asia/Shanghai');
 	if($price > 0){
@@ -544,16 +556,16 @@ function erphpAddDownloadByUid($subject,$postid,$userid,$price,$success,$data,$p
 		$subject = str_replace("‘","",$subject);
 		$url       = md5(date("YmdHis").$postid.mt_rand(1000000, 9999999));
 		$orderNum  = date("d").mt_rand(10000, 99999).mt_rand(10,99);
-		$sql       = "INSERT INTO $wpdb->icealipay (ice_num,ice_title,ice_post,ice_price,ice_success,ice_url,ice_user_id,ice_time,ice_data,
-		ice_author)VALUES ('$orderNum','$subject','$postid','$price','$success','$url','".$userid."','".date("Y-m-d H:i:s")."','".$data."','$postUserId')";
-		if($wpdb->query($sql) && erphpdod() > 0)
+		$sql       = "INSERT INTO $wpdb->icealipay (ice_num,ice_title,ice_post,ice_price,ice_success,ice_url,ice_user_id,ice_time,ice_data,ice_index,
+		ice_author)VALUES ('$orderNum','$subject','$postid','$price','$success','$url','".$userid."','".date("Y-m-d H:i:s")."','".$data."','".$index."','$postUserId')";
+		if($wpdb->query($sql))
 		{
 			return $url;
 		}
 	}
 	return false;
 }
-function erphpAddDownload($subject,$postid,$price,$success,$data,$postUserId)
+function erphpAddDownload($subject,$postid,$price,$success,$data,$postUserId,$index='')
 {
 	date_default_timezone_set('Asia/Shanghai');
 	if($price > 0){
@@ -563,9 +575,9 @@ function erphpAddDownload($subject,$postid,$price,$success,$data,$postUserId)
 		$user_info = wp_get_current_user();
 		$url       = md5(date("YmdHis").$postid.mt_rand(1000000, 9999999));
 		$orderNum  = date("d").mt_rand(10000, 99999).mt_rand(10,99);
-		$sql       = "INSERT INTO $wpdb->icealipay (ice_num,ice_title,ice_post,ice_price,ice_success,ice_url,ice_user_id,ice_time,ice_data,
-		ice_author)VALUES ('$orderNum','$subject','$postid','$price','$success','$url','".$user_info->ID."','".date("Y-m-d H:i:s")."','".$data."','$postUserId')";
-		if($wpdb->query($sql) && erphpdod() > 0)
+		$sql       = "INSERT INTO $wpdb->icealipay (ice_num,ice_title,ice_post,ice_price,ice_success,ice_url,ice_user_id,ice_time,ice_data,ice_index,
+		ice_author)VALUES ('$orderNum','$subject','$postid','$price','$success','$url','".$user_info->ID."','".date("Y-m-d H:i:s")."','".$data."','".$index."','$postUserId')";
+		if($wpdb->query($sql))
 		{
 			return $url;
 		}
@@ -581,7 +593,7 @@ function erphpAddDownloadIndex($postid,$price,$index)
 		$url       = md5(date("YmdHis").$postid.mt_rand(1000000, 9999999));
 		$orderNum  = date("YmdHis").mt_rand(10000, 99999);
 		$sql       = "INSERT INTO $wpdb->iceindex (ice_num,ice_post,ice_price,ice_url,ice_user_id,ice_time,ice_index)VALUES ('$orderNum','$postid','$price','$url','".$user_info->ID."','".date("Y-m-d H:i:s")."','".$index."')";
-		if($wpdb->query($sql) && erphpdod() > 0)
+		if($wpdb->query($sql))
 		{
 			return $url;
 		}
@@ -791,7 +803,7 @@ function erphpdown_shortcode_buy($atts){
 	$days=get_post_meta($post_id, 'down_days', true);
 	$userType=getUsreMemberType();
 	$user_info=wp_get_current_user();
-	$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$post_id."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$post_id."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
 	$user_id = is_user_logged_in() ? wp_get_current_user()->ID : 0;
 	$wppay = new EPD($post_id, $user_id);
 
@@ -810,7 +822,7 @@ function erphpdown_shortcode_buy($atts){
 			return '';
 		}
 	}else{
-		return '<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.$post_id.' target="_blank" >'.$atts['buy'].'</a>';
+		return '<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.$post_id.' target="_blank" >'.$atts['buy'].'</a>';
 	}
 	
 }
@@ -823,7 +835,9 @@ function erphpdown_shortcode_box(){
 	$start_down2=get_post_meta(get_the_ID(), 'start_down2', true);
 	$days=get_post_meta(get_the_ID(), 'down_days', true);
 	$price=get_post_meta(get_the_ID(), 'down_price', true);
+	$price_type=get_post_meta(get_the_ID(), 'down_price_type', true);
 	$url=get_post_meta(get_the_ID(), 'down_url', true);
+	$urls=get_post_meta(get_the_ID(), 'down_urls', true);
 	$url_free=get_post_meta(get_the_ID(), 'down_url_free', true);
 	$memberDown=get_post_meta(get_the_ID(), 'member_down',TRUE);
 	$hidden=get_post_meta(get_the_ID(), 'hidden_content', true);
@@ -893,7 +907,7 @@ function erphpdown_shortcode_box(){
 	
 	if($start_down2){
 		if($url){
-			$content.='<div class="erphpdown" id="erphpdown" style="display:block">'.$downMsgFree;
+			$content.='<fieldset class="erphpdown" id="erphpdown" style="display:block"><legend>资源下载</legend>'.$downMsgFree;
 			
 			$user_id = is_user_logged_in() ? wp_get_current_user()->ID : 0;
 			$wppay = new EPD(get_the_ID(), $user_id);
@@ -997,206 +1011,350 @@ function erphpdown_shortcode_box(){
 			}
 			
 			if(get_option('ice_tips')) $content.='<div class="erphpdown-tips">'.get_option('ice_tips').'</div>';
-			$content.='</div>';
+			$content.='</fieldset>';
 		}
 
 	}elseif($start_down){
-		$content.='<div class="erphpdown" id="erphpdown" style="display:block">'.$downMsgFree;
-		if(is_user_logged_in()){
-			if($price){
-				if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
-					$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option("ice_name_alipay");
-			}else{
-				if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
-					$content.='此资源为免费资源';
-			}
+		$content.='<fieldset class="erphpdown" id="erphpdown" style="display:block"><legend>资源下载</legend>'.$downMsgFree;
+		if($price_type){
+			if($urls){
+				$cnt = count($urls['index']);
+    			if($cnt){
+    				for($i=0; $i<$cnt;$i++){
+    					$index = $urls['index'][$i];
+    					$index_name = $urls['name'][$i];
+    					$price = $urls['price'][$i];
+    					$index_url = $urls['url'][$i];
+    					$content .= '<fieldset class="erphpdown-child"><legend>'.$index_name.'</legend>';
+    					if(is_user_logged_in()){
+							if($price){
+								if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
+									$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option("ice_name_alipay");
+							}else{
+								if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
+									$content.='此资源为免费资源';
+							}
 
-			if($price || $memberDown == 4 || $memberDown == 8 || $memberDown == 9){
-				global $wpdb;
-				$user_info=wp_get_current_user();
-				$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".get_the_ID()."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
-				if($days > 0){
-					$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($down_info->ice_time)));
-					$nowDate = date('Y-m-d H:i:s');
-					if(strtotime($nowDate) > strtotime($lastDownDate)){
-						$down_info = null;
-					}
-				}
+							if($price || $memberDown == 4 || $memberDown == 8 || $memberDown == 9){
+								global $wpdb;
+								$user_info=wp_get_current_user();
+								$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".get_the_ID()."' and ice_index='".$index."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+								if($days > 0){
+									$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($down_info->ice_time)));
+									$nowDate = date('Y-m-d H:i:s');
+									if(strtotime($nowDate) > strtotime($lastDownDate)){
+										$down_info = null;
+									}
+								}
 
-				if($memberDown > 1){
-					$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a>';
-					if($userType){
-						$vipText = '';
-					}
-					if($memberDown==3 && $down_info==null){
-						$content.='（VIP免费'.$vipText.'）';
-					}elseif ($memberDown==2 && $down_info==null){
-						$content.='（VIP 5折'.$vipText.'）';
-					}elseif ($memberDown==5 && $down_info==null){
-						$content.='（VIP 8折'.$vipText.'）';
-					}elseif ($memberDown==6 && $down_info==null){
-						if($userType < 9){
-							$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级年费VIP</a>';
-						}
-						$content.='（年费VIP免费'.$vipText.'）';
-					}elseif ($memberDown==7 && $down_info==null){
-						if($userType < 10){
-							$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级终身VIP</a>';
-						}
-						$content.='（终身VIP免费'.$vipText.'）';
-					}elseif ($memberDown==4){
-						if($userType){
-							$content.='此资源为VIP专享资源';
-						}
-					}elseif ($memberDown==8){
-						if($userType >= 9){
-							$content.='此资源为年费VIP专享资源';
-						}
-					}elseif ($memberDown==9){
-						if($userType >= 10){
-							$content.='此资源为终身VIP专享资源';
-						}
-					}
-				}
+								if($memberDown > 1){
+									$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a>';
+									if($userType){
+										$vipText = '';
+									}
+									if($memberDown==3 && $down_info==null){
+										$content.='（VIP免费'.$vipText.'）';
+									}elseif ($memberDown==2 && $down_info==null){
+										$content.='（VIP 5折'.$vipText.'）';
+									}elseif ($memberDown==5 && $down_info==null){
+										$content.='（VIP 8折'.$vipText.'）';
+									}elseif ($memberDown==6 && $down_info==null){
+										if($userType < 9){
+											$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级年费VIP</a>';
+										}
+										$content.='（年费VIP免费'.$vipText.'）';
+									}elseif ($memberDown==7 && $down_info==null){
+										if($userType < 10){
+											$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级终身VIP</a>';
+										}
+										$content.='（终身VIP免费'.$vipText.'）';
+									}elseif ($memberDown==4){
+										if($userType){
+											$content.='此资源为VIP专享资源';
+										}
+									}elseif ($memberDown==8){
+										if($userType >= 9){
+											$content.='此资源为年费VIP专享资源';
+										}
+									}elseif ($memberDown==9){
+										if($userType >= 10){
+											$content.='此资源为终身VIP专享资源';
+										}
+									}
+								}
 
-				if($memberDown==4 && $userType==FALSE){
-					$content.='抱歉，此资源仅限VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
-				}elseif($memberDown==8 && $userType < 9){
-					$content.='抱歉，此资源仅限年费VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
-				}elseif($memberDown==9 && $userType < 10){
-					$content.='抱歉，此资源仅限终身VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
-				}else{
-					
-					if($userType && $memberDown > 1)
-					{
-						if($memberDown==3 || $memberDown==4)
-						{
-							//$msg.='您是VIP用户，可以免费下载此资源！';
-							if(get_option('erphp_popdown')){
-								$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
-							}else{
-								$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
-							}
-						}
-						elseif ($memberDown==2 && $down_info==null)
-						{
-							//$msg.='您是VIP用户，可以5折（价格为：'.($price*0.5).get_option('ice_name_alipay').'）购买下载此资源！';
-							$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
-						}
-						elseif ($memberDown==5 && $down_info==null)
-						{
-							//$msg.='您是VIP用户，可以8折（价格为：'.($price*0.8).get_option('ice_name_alipay').'）购买下载此资源！';
-							$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
-						}
-						elseif ($memberDown==6 && $down_info==null)
-						{
-							if($userType == 9){
-								//$msg.='您是包年VIP用户，可以免费下载此资源！';
-								if(get_option('erphp_popdown')){
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+								if($memberDown==4 && $userType==FALSE){
+									$content.='抱歉，此资源仅限VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
+								}elseif($memberDown==8 && $userType < 9){
+									$content.='抱歉，此资源仅限年费VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
+								}elseif($memberDown==9 && $userType < 10){
+									$content.='抱歉，此资源仅限终身VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
 								}else{
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
-								}
 									
-							}elseif($userType == 10){
-								//$msg.='您是终身VIP用户，可以免费下载此资源！';
-								if(get_option('erphp_popdown')){
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
-								}else{
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									if($userType && $memberDown > 1){
+										if($memberDown==3 || $memberDown==4){
+											if(get_option('erphp_popdown')){
+												$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+											}else{
+												$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+											}
+										}elseif ($memberDown==2 && $down_info==null){
+											$content.='<a class="erphpdown-iframe erphpdown-buy" href="'.constant("erphpdown").'buy.php?postid='.get_the_ID().'&index='.$index.'" target="_blank">立即购买</a>';
+										}elseif ($memberDown==5 && $down_info==null){
+											$content.='<a class="erphpdown-iframe erphpdown-buy" href="'.constant("erphpdown").'buy.php?postid='.get_the_ID().'&index='.$index.'" target="_blank">立即购买</a>';
+										}elseif ($memberDown==6 && $down_info==null){
+											if($userType == 9){
+												if(get_option('erphp_popdown')){
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+												}else{
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+												}	
+											}elseif($userType == 10){
+												if(get_option('erphp_popdown')){
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+												}else{
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+												}	
+											}else{
+												$content.='<a class="erphpdown-iframe erphpdown-buy" href="'.constant("erphpdown").'buy.php?postid='.get_the_ID().'&index='.$index.'" target="_blank">立即购买</a>';
+											}
+										}elseif ($memberDown==7 && $down_info==null){
+											if($userType == 10){
+												if(get_option('erphp_popdown')){
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+												}else{
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+												}	
+											}else{
+												$content.='<a class="erphpdown-iframe erphpdown-buy" href="'.constant("erphpdown").'buy.php?postid='.get_the_ID().'&index='.$index.'" target="_blank">立即购买</a>';
+											}
+										}elseif ($memberDown==8 && $down_info==null){
+											if($userType >= 9){
+												if(get_option('erphp_popdown')){
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+												}else{
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+												}	
+											}
+										}elseif ($memberDown==9 && $down_info==null){
+											if($userType >= 10){
+												if(get_option('erphp_popdown')){
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+												}else{
+													$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
+												}	
+											}
+										}elseif($down_info){
+											if(get_option('erphp_popdown')){
+												$content.='<a href="'.constant("erphpdown").'download.php?postid='.get_the_ID().'&index='.$index.'" class="erphpdown-down erphpdown-down-layui">立即下载</a>';
+											}else{
+												$content.='<a href="'.constant("erphpdown").'download.php?postid='.get_the_ID().'&index='.$index.'" class="erphpdown-down" target="_blank">立即下载</a>';
+											}
+										}
+									}else{
+										if($down_info && $down_info->ice_price > 0){
+											if(get_option('erphp_popdown')){
+												$content.='<a href="'.constant("erphpdown").'download.php?postid='.get_the_ID().'&index='.$index.'" class="erphpdown-down erphpdown-down-layui">已购买，立即下载</a>';
+											}else{
+												$content.='<a href="'.constant("erphpdown").'download.php?postid='.get_the_ID().'&index='.$index.'" class="erphpdown-down" target="_blank">已购买，立即下载</a>';
+											}
+										}else{
+											$content.='<a class="erphpdown-iframe erphpdown-buy" href="'.constant("erphpdown").'buy.php?postid='.get_the_ID().'&index='.$index.'" target="_blank">立即购买</a>';
+										}
+									}
 								}
-									
+								
 							}else{
-								//$msg.='您是VIP用户，原价购买下载此资源！（年费VIP用户免费）';
-								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
-							}
-						}
-						elseif ($memberDown==7 && $down_info==null)
-						{
-							if($userType == 10){
-								//$msg.='您是终身VIP用户，可以免费下载此资源！';
 								if(get_option('erphp_popdown')){
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
 								}else{
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									$content.="<a href='".constant("erphpdown").'download.php?postid='.get_the_ID()."&index=".$index."' class='erphpdown-down' target='_blank'>立即下载</a>";
 								}
-									
-							}else{
-								//$msg.='您是VIP用户，原价购买下载此资源！（终身VIP用户免费）';
-								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
 							}
-						}
-						elseif ($memberDown==8 && $down_info==null)
-						{
-							if($userType >= 9){
-								if(get_option('erphp_popdown')){
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
-								}else{
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
-								}
-									
-							}
-						}
-						elseif ($memberDown==9 && $down_info==null)
-						{
-							if($userType >= 10){
-								if(get_option('erphp_popdown')){
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
-								}else{
-									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
-								}
-									
-							}
-						}
-						elseif($down_info)
-						{
-							if(get_option('erphp_popdown')){
-								$content.='<a href='.constant("erphpdown").'download.php?url='.$down_info->ice_url.' class="erphpdown-down erphpdown-down-layui">立即下载</a>';
-							}else{
-								$content.='<a href='.constant("erphpdown").'download.php?url='.$down_info->ice_url.' class="erphpdown-down" target="_blank">立即下载</a>';
-							}
-						}
-					}
-					else {
-						if($down_info && $down_info->ice_price > 0){
-							if(get_option('erphp_popdown')){
-								$content.='<a href='.constant("erphpdown").'download.php?url='.$down_info->ice_url.' class="erphpdown-down erphpdown-down-layui">已购买，立即下载</a>';
-							}else{
-								$content.='<a href='.constant("erphpdown").'download.php?url='.$down_info->ice_url.' class="erphpdown-down" target="_blank">已购买，立即下载</a>';
-							}
+							
 						}else{
-							$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+							if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
+								$content.='抱歉，此资源仅限VIP下载，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+							}else{
+								if($price){
+									$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+								}else{
+									$content.='此资源为免费资源，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+								}
+							}
 						}
+    					$content .= '</fieldset>';
+    				}
+    			}
+			}
+		}else{
+			if(is_user_logged_in()){
+				if($price){
+					if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
+						$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option("ice_name_alipay");
+				}else{
+					if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
+						$content.='此资源为免费资源';
+				}
+
+				if($price || $memberDown == 4 || $memberDown == 8 || $memberDown == 9){
+					global $wpdb;
+					$user_info=wp_get_current_user();
+					$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".get_the_ID()."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
+					if($days > 0){
+						$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($down_info->ice_time)));
+						$nowDate = date('Y-m-d H:i:s');
+						if(strtotime($nowDate) > strtotime($lastDownDate)){
+							$down_info = null;
+						}
+					}
+
+					if($memberDown > 1){
+						$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a>';
+						if($userType){
+							$vipText = '';
+						}
+						if($memberDown==3 && $down_info==null){
+							$content.='（VIP免费'.$vipText.'）';
+						}elseif ($memberDown==2 && $down_info==null){
+							$content.='（VIP 5折'.$vipText.'）';
+						}elseif ($memberDown==5 && $down_info==null){
+							$content.='（VIP 8折'.$vipText.'）';
+						}elseif ($memberDown==6 && $down_info==null){
+							if($userType < 9){
+								$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级年费VIP</a>';
+							}
+							$content.='（年费VIP免费'.$vipText.'）';
+						}elseif ($memberDown==7 && $down_info==null){
+							if($userType < 10){
+								$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级终身VIP</a>';
+							}
+							$content.='（终身VIP免费'.$vipText.'）';
+						}elseif ($memberDown==4){
+							if($userType){
+								$content.='此资源为VIP专享资源';
+							}
+						}elseif ($memberDown==8){
+							if($userType >= 9){
+								$content.='此资源为年费VIP专享资源';
+							}
+						}elseif ($memberDown==9){
+							if($userType >= 10){
+								$content.='此资源为终身VIP专享资源';
+							}
+						}
+					}
+
+					if($memberDown==4 && $userType==FALSE){
+						$content.='抱歉，此资源仅限VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
+					}elseif($memberDown==8 && $userType < 9){
+						$content.='抱歉，此资源仅限年费VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
+					}elseif($memberDown==9 && $userType < 10){
+						$content.='抱歉，此资源仅限终身VIP下载<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a>';
+					}else{
+						
+						if($userType && $memberDown > 1){
+							if($memberDown==3 || $memberDown==4){
+								if(get_option('erphp_popdown')){
+									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+								}else{
+									$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+								}
+							}elseif ($memberDown==2 && $down_info==null){
+								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+							}elseif ($memberDown==5 && $down_info==null){
+								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+							}elseif ($memberDown==6 && $down_info==null){
+								if($userType == 9){
+									if(get_option('erphp_popdown')){
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									}else{
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									}	
+								}elseif($userType == 10){
+									if(get_option('erphp_popdown')){
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									}else{
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									}	
+								}else{
+									$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+								}
+							}elseif ($memberDown==7 && $down_info==null){
+								if($userType == 10){
+									if(get_option('erphp_popdown')){
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									}else{
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									}
+								}else{
+									$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+								}
+							}elseif ($memberDown==8 && $down_info==null){
+								if($userType >= 9){
+									if(get_option('erphp_popdown')){
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									}else{
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									}
+										
+								}
+							}elseif ($memberDown==9 && $down_info==null){
+								if($userType >= 10){
+									if(get_option('erphp_popdown')){
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+									}else{
+										$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+									}
+										
+								}
+							}elseif($down_info){
+								if(get_option('erphp_popdown')){
+									$content.='<a href='.constant("erphpdown").'download.php?postid='.get_the_ID().' class="erphpdown-down erphpdown-down-layui">立即下载</a>';
+								}else{
+									$content.='<a href='.constant("erphpdown").'download.php?postid='.get_the_ID().' class="erphpdown-down" target="_blank">立即下载</a>';
+								}
+							}
+						}else {
+							if($down_info && $down_info->ice_price > 0){
+								if(get_option('erphp_popdown')){
+									$content.='<a href='.constant("erphpdown").'download.php?postid='.get_the_ID().' class="erphpdown-down erphpdown-down-layui">已购买，立即下载</a>';
+								}else{
+									$content.='<a href='.constant("erphpdown").'download.php?postid='.get_the_ID().' class="erphpdown-down" target="_blank">已购买，立即下载</a>';
+								}
+							}else{
+								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+							}
+						}
+					}
+					
+				}else{
+					if(get_option('erphp_popdown')){
+						$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+					}else{
+						$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
 					}
 				}
 				
-			}else{
-				if(get_option('erphp_popdown')){
-					$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down erphpdown-down-layui'>立即下载</a>";
+			}else {
+				if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
+					$content.='抱歉，此资源仅限VIP下载，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
 				}else{
-					$content.="<a href=".constant("erphpdown").'download.php?postid='.get_the_ID()." class='erphpdown-down' target='_blank'>立即下载</a>";
+					if($price){
+						$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+					}else{
+						$content.='恭喜，此资源为免费资源，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+					}
 				}
+				
 			}
-			
-		}
-		else {
-			if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
-				$content.='抱歉，此资源仅限VIP下载，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
-			}else{
-				if($price){
-					$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
-				}else{
-					$content.='恭喜，此资源为免费资源，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
-				}
-			}
-			
 		}
 		
 		if(get_option('ice_tips')) $content.='<div class="erphpdown-tips">'.get_option('ice_tips').'</div>';
-		$content.='</div>';
+		$content.='</fieldset>';
 		
 	}else{
-		if($downMsgFree) $content.='<div class="erphpdown" id="erphpdown" style="display:block">'.$downMsgFree.'</div>';
+		if($downMsgFree) $content.='<fieldset class="erphpdown" id="erphpdown" style="display:block"><legend>资源下载</legend>'.$downMsgFree.'</fieldset>';
 	}
 	
 	return $content;
@@ -1228,7 +1386,7 @@ function erphpdown_shortcode_see($atts, $content=null){
 		}
 
 		if($price_index > 0){
-			$html='<div class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">';
+			$html='<fieldset class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>';
 			if(is_user_logged_in()){
 				$user_info=wp_get_current_user();
 				$down_info=$wpdb->get_row("select * from ".$wpdb->iceindex." where ice_post='".$post->ID."' and ice_index=".$atts['index']." and ice_user_id=".$user_info->ID." and ice_price='".$price_index."' order by ice_time desc");
@@ -1243,10 +1401,10 @@ function erphpdown_shortcode_see($atts, $content=null){
 					return '<div class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">'.do_shortcode($content).'</div>';
 				}else{
 					$html.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price_index.'</span>'.get_option('ice_name_alipay');
-					$html.='<a class="erphpdown-buy erphpdown-buy-index" href="javascript:;" data-post="'.$post->ID.'" data-index="'.$atts['index'].'" data-price="'.$price_index.'">立即购买</a></div>';
+					$html.='<a class="erphpdown-buy erphpdown-buy-index" href="javascript:;" data-post="'.$post->ID.'" data-index="'.$atts['index'].'" data-price="'.$price_index.'">立即购买</a></fieldset>';
 				}
 			}else{
-				$html.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price_index.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a></div>';
+				$html.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price_index.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a></fieldset>';
 			}
 			return $html;
 		}else{
@@ -1260,7 +1418,7 @@ function erphpdown_shortcode_see($atts, $content=null){
 		$price=get_post_meta($post->ID, 'down_price', true);
 
 		$user_info=wp_get_current_user();
-		$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$post->ID."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+		$down_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$post->ID."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
 		$user_id = is_user_logged_in() ? wp_get_current_user()->ID : 0;
 		$wppay = new EPD($post->ID, $user_id);
 
@@ -1268,7 +1426,11 @@ function erphpdown_shortcode_see($atts, $content=null){
 			if( $wppay->isWppayPaid() || ($memberDown == 3 && $userType) ){
 				return do_shortcode($content);
 			}else{
-				return '<p class="erphpdown-content-vip">您暂时无权查看此隐藏内容！</p>';
+				if($memberDown == 3){
+					return '<fieldset class="erphpdown erphpdown-content-vip"><legend>内容查看</legend>此隐藏内容查看价格<span class="erphpdown-price">'.$price.'</span>元<a href="javascript:;" class="erphp-wppay-loader erphpdown-buy" data-post="'.$post->ID.'">立即支付</a>&nbsp;&nbsp;<b>或</b>&nbsp;&nbsp;升级VIP后免费<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				}else{
+					return '<fieldset class="erphpdown erphpdown-content-vip"><legend>内容查看</legend>此隐藏内容查看价格<span class="erphpdown-price">'.$price.'</span>元<a href="javascript:;" class="erphp-wppay-loader erphpdown-buy" data-post="'.get_the_ID().'">立即支付</a></fieldset>';	
+				}
 			}
 		}else{
 			if(is_user_logged_in()){
@@ -1280,7 +1442,6 @@ function erphpdown_shortcode_see($atts, $content=null){
 					}
 				}
 				if( (($memberDown==3 || $memberDown==4) && $userType) || $wppay->isWppayPaid() || $down_info || (($memberDown==6 || $memberDown==8) && $userType >= 9) || (($memberDown==7 || $memberDown==9) && $userType == 10) ){
-					//return do_shortcode($content);
 					if(!$wppay->isWppayPaid() && !$down_info){
 						$erphp_life_times    = get_option('erphp_life_times');
 						$erphp_year_times    = get_option('erphp_year_times');
@@ -1305,7 +1466,7 @@ function erphpdown_shortcode_see($atts, $content=null){
 								}
 							}elseif($userType == 8 && $erphp_quarter_times > 0){
 								if( checkSeeLog($user_info->ID,$post->ID,$erphp_quarter_times,erphpGetIP()) ){
-									return '<p class="erphpdown-content-vip erphpdown-content-vip-see">您可免费查看此隐藏内容，请明天再来！<a href="javascript:;" class="erphpdown-see-btn" data-post="'.$post->ID.'">立即查看</a>（今日已查看'.getSeeCount($user_info->ID).'个，还可查看'.($erphp_quarter_times-getSeeCount($user_info->ID)).'个）</p>';
+									return '<p class="erphpdown-content-vip erphpdown-content-vip-see">您可免费查看此隐藏内容！<a href="javascript:;" class="erphpdown-see-btn" data-post="'.$post->ID.'">立即查看</a>（今日已查看'.getSeeCount($user_info->ID).'个，还可查看'.($erphp_quarter_times-getSeeCount($user_info->ID)).'个）</p>';
 								}else{
 									return '<p class="erphpdown-content-vip">您暂时无权查看此隐藏内容，请明天再来！（今日已查看'.getSeeCount($user_info->ID).'个，还可查看'.($erphp_quarter_times-getSeeCount($user_info->ID)).'个）</p>';
 								}
@@ -1329,7 +1490,7 @@ function erphpdown_shortcode_see($atts, $content=null){
 						return do_shortcode($content);
 					}
 				}else{
-					$content='<div class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block">';
+					$content='<fieldset class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block"><legend>内容查看</legend>';
 					if($price){
 						if($memberDown != 4 && $memberDown != 8 && $memberDown != 9)
 							$content.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay');
@@ -1380,38 +1541,38 @@ function erphpdown_shortcode_see($atts, $content=null){
 						{
 							if ($memberDown==2 && $down_info==null)
 							{
-								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
+								$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
 							}
 							elseif ($memberDown==5 && $down_info==null)
 							{
-								$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
+								$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
 							}
 							elseif ($memberDown==6 && $down_info==null)
 							{
 								if($userType < 9){
-									$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
+									$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
 								}
 							}
 							elseif ($memberDown==7 && $down_info==null)
 							{
 								if($userType < 10){
-									$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
+									$content.='<a class="erphpdown-iframe erphpdown-buy"  href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank" >立即购买</a>';
 								}
 							}
 							
 						}
 						else 
 						{
-							$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'icealipay-pay-center.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
+							$content.='<a class="erphpdown-iframe erphpdown-buy" href='.constant("erphpdown").'buy.php?postid='.get_the_ID().' target="_blank">立即购买</a>';
 						}
 					}
 
 					if(get_option('ice_tips')) $content.='<div class="erphpdown-tips">'.get_option('ice_tips').'</div>';
-					$content.='</div>';
+					$content.='</fieldset>';
 					return $content;
 				}
 			}else{
-				$content='<div class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block">';
+				$content='<fieldset class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block"><legend>内容查看</legend>';
 				if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
 					$content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
 				}else{
@@ -1421,7 +1582,7 @@ function erphpdown_shortcode_see($atts, $content=null){
 				}
 				
 				if(get_option('ice_tips')) $content.='<div class="erphpdown-tips">'.get_option('ice_tips').'</div>';
-				$content.='</div>';
+				$content.='</fieldset>';
 				return $content;
 			}
 		}
@@ -1444,7 +1605,7 @@ function erphpdown_shortcode_vip($atts, $content=null){
 		$erphp_url_front_login = get_option('erphp_url_front_login');
 	}
 
-	$vip = '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+	$vip = '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 
 	if(is_user_logged_in()){
 		$userType=getUsreMemberType();
@@ -1456,15 +1617,15 @@ function erphpdown_shortcode_vip($atts, $content=null){
 			}
 		}else{
 			if($atts['type'] == '6' && $userType < 6){
-				return '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '7' && $userType < 7){
-				return '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限包月VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包月VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '8' && $userType < 8){
-				return '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限包季VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包季VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '9' && $userType < 9){
-				return '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限包年VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包年VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '10' && $userType < 10){
-				return '<div id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block">此隐藏内容仅限终身VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></div>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限终身VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
 			}else{
 				return do_shortcode($content);
 			}

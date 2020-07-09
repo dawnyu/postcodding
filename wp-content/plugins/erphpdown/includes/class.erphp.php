@@ -19,67 +19,6 @@ class EPD{
 	
 	}
 
-	public function isErphpdown($post_id){
-		if(!$post_id)
-			return false;
-
-		$start_down = get_post_meta($post_id,'start_down',true);
-		$start_see = get_post_meta($post_id,'start_see',true);
-		$start_see2 = get_post_meta($post_id,'start_see2',true);
-		$start_down2 = get_post_meta($post_id,'start_down2',true);
-		if($start_see2 == 'yes' || $start_see == 'yes' || $start_down == 'yes' || $start_down2 == 'yes')
-			return true;
-	}
-
-	public function isBought($post_id, $user_id = null){
-		if(!$post_id)
-			return false;
-
-		if($user_id){
-			$ice_user_id = $user_id;
-		}else{
-			$ice_user_id = $this->user_id;
-		}
-
-		global $wpdb;
-		$days=get_post_meta($post_id, 'down_days', true);
-		$isBought = $wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$post_id."' and ice_success=1 and ice_user_id=".$ice_user_id." order by ice_time desc");
-
-		if($days > 0){
-			$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($isBought->ice_time)));
-			$nowDate = date('Y-m-d H:i:s');
-			if(strtotime($nowDate) > strtotime($lastDownDate)){
-				$isBought = null;
-			}
-		}
-
-		return $isBought;
-	}
-
-	public function checkout($money){
-		if(!$this->is_logged)
-			return false;
-
-		if($money > 0){
-			global $wpdb;
-			return $wpdb->query("update $wpdb->iceinfo set ice_get_money=ice_get_money+".$money." where ice_user_id=".$this->user_id);
-		}else{
-			return false;
-		}
-	}
-
-	public function checkoutReturn($money){
-		if(!$this->is_logged)
-			return false;
-
-		if($money > 0){
-			global $wpdb;
-			return $wpdb->query("update $wpdb->iceinfo set ice_get_money=ice_get_money-".$money ." where ice_user_id=".$this->user_id);
-		}else{
-			return false;
-		}
-	}
-
 	public function doAff($money, $user_id){
 		global $wpdb;
 		$ref = get_option('ice_ali_money_ref');
@@ -108,56 +47,6 @@ class EPD{
 		}else{
 			return $wpdb->query("update $wpdb->iceinfo set ice_have_money=ice_have_money+".$money." where ice_user_id=".$user_id);
 		}
-	}
-
-	public function addBuyLog($postName,$post_id,$price,$success,$postDownloadUrl,$postAuthor){
-		if(!$this->is_logged)
-			return false;
-
-		if($price > 0){
-			global $wpdb;
-			$postName = str_replace("'","",$postName);
-			$postName = str_replace("‘","",$postName);
-			$url       = md5(date("YmdHis").$post_id.mt_rand(1000000, 9999999));
-			$orderNum  = mt_rand(100, 999).date("mdH");
-			$sql       = "INSERT INTO $wpdb->icealipay (ice_num,ice_title,ice_post,ice_price,ice_success,ice_url,ice_user_id,ice_time,ice_data,
-			ice_author)VALUES ('$orderNum','$postName','$post_id','$price','$success','$url','".$this->user_id."','".date("Y-m-d H:i:s")."','".$postDownloadUrl."','$postAuthor')";
-			if($wpdb->query($sql)){
-				return $url;
-			}
-		}
-		return false;
-	}
-
-	public function getPostErphpdownType($post_id){
-		if(!$post_id)
-			return false;
-
-		$start_down = get_post_meta($post_id,'start_down',true);
-		$start_see = get_post_meta($post_id,'start_see',true);
-		$start_see2 = get_post_meta($post_id,'start_see2',true);
-		if($start_see2 == 'yes')
-			return 'start_see2';
-		if($start_see == 'yes')
-			return 'start_see';
-		if($start_down == 'yes')
-			return 'start_down';
-	}
-
-	public static function getPostPrice($post_id){
-		if(!$post_id)
-			return false;
-
-		$down_price = get_post_meta($post_id,'down_price',true);
-		return $down_price;
-	}
-
-	public static function getPostDownloadUrl($post_id){
-		if(!$post_id)
-			return false;
-
-		$down_url = get_post_meta($post_id,'down_url',true);
-		return $down_url;
 	}
 
 	public static function getPostHidden($post_id){

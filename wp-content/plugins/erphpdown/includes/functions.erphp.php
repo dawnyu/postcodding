@@ -34,7 +34,7 @@
 		        add_submenu_page('erphpdown/admin/erphp-settings.php', '充值统计', '充值统计', 'activate_plugins', 'erphpdown/admin/erphp-chong-list.php');
 		        add_submenu_page('erphpdown/admin/erphp-settings.php', '销售排行', '销售排行', 'activate_plugins', 'erphpdown/admin/erphp-items-list.php');
 				add_submenu_page('erphpdown/admin/erphp-settings.php', '购买统计', '购买统计', 'activate_plugins', 'erphpdown/admin/erphp-orders-list.php');
-				add_submenu_page('erphpdown/admin/erphp-settings.php', '购买index统计', '购买index统计', 'activate_plugins', 'erphpdown/admin/erphp-indexs-list.php');
+				add_submenu_page('erphpdown/admin/erphp-settings.php', '附加购买统计', '附加购买统计', 'activate_plugins', 'erphpdown/admin/erphp-indexs-list.php');
 				add_submenu_page('erphpdown/admin/erphp-settings.php', '免登录购买统计', '免登录购买统计', 'activate_plugins', 'erphpdown/admin/erphp-wppays-list.php');
 				add_submenu_page('erphpdown/admin/erphp-settings.php', '提现统计', '提现统计'.($tx_count?'<span class="awaiting-mod">'.$tx_count.'</span>':''), 'activate_plugins', 'erphpdown/admin/erphp-tixian-list.php');
 		        add_submenu_page('erphpdown/admin/erphp-settings.php', '推广统计', '推广统计', 'activate_plugins', 'erphpdown/admin/erphp-reference-all.php');
@@ -278,8 +278,6 @@
 			$expire = time() + $days*24*60*60;
 		    setcookie('wppay_'.$post_id, $wppay->setWppayKey($order_num), $expire, '/', $_SERVER['HTTP_HOST'], false);
 		    $status = 1;
-		}else{
-			//setcookie('wppay_'.$post_id, '', time(), '/', $_SERVER['HTTP_HOST'], false);
 		}
 
 		$result = array(
@@ -302,6 +300,11 @@
 		$user_id = wp_get_current_user()->ID;
 		$okMoney=erphpGetUserOkMoney();
 
+		$erphp_url_front_recharge = get_bloginfo('wpurl').'/wp-admin/admin.php?page=erphpdown/admin/erphp-add-money-online.php';
+		if(get_option('erphp_url_front_recharge')){
+			$erphp_url_front_recharge = get_option('erphp_url_front_recharge');
+		}
+								
 		$status = 201;
 
 		if(sprintf("%.2f",$okMoney) >= $price && $okMoney > 0 && $price > 0){
@@ -329,12 +332,14 @@
 				$msg = '购买失败，请稍后重试！';
 			}
 		}else{
+			$status = 202;
 			$msg = '余额不足，请先充值！';
 		}
 
 		$result = array(
 			'status' => $status,
-			'msg' => $msg
+			'msg' => $msg,
+			'recharge' => $erphp_url_front_recharge
 		);
 
 		header('Content-type: application/json');
@@ -475,6 +480,7 @@
 				"ice_user_id int(11) NOT NULL,".
 				"ice_time datetime NOT NULL,".
 				"ice_data text,".
+				"ice_index int(11),".
 				"ice_success int(11) NOT NULL,".
 				"ice_author int(11) NOT NULL,".
 				"PRIMARY KEY (ice_id)) $charset_collate;";
@@ -488,7 +494,7 @@
 				"ice_url varchar(32) NOT NULL,".
 				"ice_user_id int(11) NOT NULL,".
 				"ice_time datetime NOT NULL,".
-				"ice_index int(4) NOT NULL,".
+				"ice_index int(11) NOT NULL,".
 				"PRIMARY KEY (ice_id)) $charset_collate;";
 		dbDelta( $create_ice_index_sql );
 		
@@ -498,6 +504,7 @@
 				"ice_money double(10,2) NOT NULL,".
 				"ice_user_id int(11) NOT NULL,".
 				"ice_post_id int(11),".
+				"ice_post_index int(11),".
 				"ice_user_type int(2),".
 				"ice_time datetime NOT NULL,".
 				"ice_success int(10) NOT NULL,".
@@ -566,20 +573,26 @@
 		  );";
 		dbDelta($create_ice_checkin_sql);
 		
-		$up1to2="ALTER TABLE `".$wpdb->users."` ADD  `father_id` INT( 10 ) NOT NULL DEFAULT  '0'";
-		$wpdb->query($up1to2);
+		$update1="ALTER TABLE `".$wpdb->users."` ADD  `father_id` INT( 10 ) NOT NULL DEFAULT  '0'";
+		$wpdb->query($update1);
 
-		$up6to7="ALTER TABLE `".$wpdb->users."` ADD  `reg_ip` varchar( 60 ) DEFAULT  ''";
-		$wpdb->query($up6to7);
+		$update2="ALTER TABLE `".$wpdb->users."` ADD  `reg_ip` varchar( 60 ) DEFAULT  ''";
+		$wpdb->query($update2);
 		
-		$up7to8="ALTER TABLE `".$wpdb->icemoney."` modify column ice_num varchar(50)";
-		$wpdb->query($up7to8);
+		$update3="ALTER TABLE `".$wpdb->icemoney."` modify column ice_num varchar(50)";
+		$wpdb->query($update3);
 
-		$up8to9="ALTER TABLE `".$wpdb->icealipay."` modify column ice_num varchar(50)";
-		$wpdb->query($up8to9);
+		$update4="ALTER TABLE `".$wpdb->icealipay."` modify column ice_num varchar(50)";
+		$wpdb->query($update4);
 
-		$up9to9="ALTER TABLE `".$wpdb->icemoney."` ADD `ice_post_id` int(11), add `ice_user_type` int(2)";
-		$wpdb->query($up9to9);
+		$update5="ALTER TABLE `".$wpdb->icemoney."` ADD `ice_post_id` int(11), add `ice_user_type` int(2)";
+		$wpdb->query($update5);
+
+		$update6="ALTER TABLE `".$wpdb->icealipay."` ADD `ice_index` int(11)";
+		$wpdb->query($update6);
+
+		$update7="ALTER TABLE `".$wpdb->icemoney."` ADD `ice_post_index` int(11)";
+		$wpdb->query($update7);
 
 		if(get_option('erphpdown_version') < 9.00){
 			update_option('erphp_post_types',array('post'));

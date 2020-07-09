@@ -1,7 +1,7 @@
 <?php
 /*
-www.mobantu.com
-82708210@qq.com
+www.yunziyuan.com.cn
+570602783@qq.com
 */
 if ( !defined('ABSPATH') ) {exit;}
 $user_Info=wp_get_current_user();

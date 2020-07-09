@@ -8,11 +8,20 @@ if(!is_user_logged_in()){
 }
 $postid=isset($_GET['postid']) && is_numeric($_GET['postid']) ?intval($_GET['postid']) :false;
 $postid = $wpdb->escape($postid);
+$index=isset($_GET['index']) && is_numeric($_GET['index']) ? intval($_GET['index']) : '';
+$index = esc_sql($index);
+$index_name = '';
+$price = '';
+
 if($postid){
 	$days=get_post_meta($postid, 'down_days', true);
 	$down_repeat = get_post_meta($postid, 'down_repeat', true);
 	$user_info=wp_get_current_user();
-	$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	if($index){
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_index='".$index."' and ice_success=1 and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}else{
+		$hasdown_info=$wpdb->get_row("select * from ".$wpdb->icealipay." where ice_post='".$postid."' and ice_success=1 and (ice_index is null or ice_index = '') and ice_user_id=".$user_info->ID." order by ice_time desc");
+	}
 	if($days > 0){
 		$lastDownDate = date('Y-m-d H:i:s',strtotime('+'.$days.' day',strtotime($hasdown_info->ice_time)));
 		$nowDate = date('Y-m-d H:i:s');
@@ -20,18 +29,36 @@ if($postid){
 			$hasdown_info = null;
 		}
 	}
+
 	if($hasdown_info && !$down_repeat){
 		$error = 1;$msg='请勿重复购买';
 	}
-	$data=get_post_meta($postid, 'down_url', true);
-	$price=get_post_meta($postid, 'down_price', true);
+
+	if($index){
+		$urls = get_post_meta($postid, 'down_urls', true);
+		if($urls){
+			$cnt = count($urls['index']);
+			if($cnt){
+				for($i=0; $i<$cnt;$i++){
+					if($urls['index'][$i] == $index){
+    					$index_name = $urls['name'][$i];
+    					$price = $urls['price'][$i];
+    					break;
+    				}
+				}
+			}
+		}
+	}else{
+		$price=get_post_meta($postid, 'down_price', true);
+	}
+
 	$memberDown=get_post_meta($postid, 'member_down',TRUE);
 	$hidden=get_post_meta($postid, 'hidden_content', true);
 	$start_down=get_post_meta($postid, 'start_down', true);
 	$start_see=get_post_meta($postid, 'start_see', true);
 	$start_see2=get_post_meta($postid, 'start_see2', true);
 	$down_activation = get_post_meta($postid, 'down_activation', true);
-	if($price==FALSE)
+	if(!$price)
 	{
 		$error = 1;$msg='商品价格错误';
 	}
@@ -55,11 +82,13 @@ if($postid){
 		if(erphpSetUserMoneyXiaoFei($price))
 		{
 			$subject   = get_post($postid)->post_title;
+			if($index_name){
+				$subject .= ' - '.$index_name;
+			}
 			$postUserId=get_post($postid)->post_author;
 			
-			if($start_down || $start_see || $start_see2)
-			{
-				$result=erphpAddDownload($subject, $postid, $price,1, '', $postUserId);
+			if($start_down || $start_see || $start_see2){
+				$result=erphpAddDownload($subject, $postid, $price,1, '', $postUserId, $index);
 				if($result)
 				{
 					if($down_activation && function_exists('doErphpAct')){
@@ -85,7 +114,7 @@ if($postid){
 					if($start_down)
 					{
 						$jump = 1;
-                        $link = constant("erphpdown") . 'download.php?url=' . $result;
+                        $link = constant("erphpdown") . 'download.php?postid=' . $postid.'&index='.$index;
 					}
 					elseif($start_see || $start_see2)
 					{

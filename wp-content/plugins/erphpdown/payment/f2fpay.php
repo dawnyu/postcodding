@@ -15,8 +15,27 @@ require_once 'f2fpay/f2fpay/service/AlipayTradeService.php';
 
 $post_id   = isset($_GET['ice_post']) && is_numeric($_GET['ice_post']) ?$_GET['ice_post'] :0;
 $user_type   = isset($_GET['ice_type']) && is_numeric($_GET['ice_type']) ?$_GET['ice_type'] :'';
+$index   = isset($_GET['index']) && is_numeric($_GET['index']) ?$_GET['index'] :'';
+
 if($post_id){
-    $price=get_post_meta($post_id, 'down_price', true);
+	if($index){
+		$urls = get_post_meta($post_id, 'down_urls', true);
+		if($urls){
+			$cnt = count($urls['index']);
+			if($cnt){
+				for($i=0; $i<$cnt;$i++){
+					if($urls['index'][$i] == $index){
+    					$index_name = $urls['name'][$i];
+    					$price = $urls['price'][$i];
+    					break;
+    				}
+				}
+			}
+		}
+	}else{
+	    $price=get_post_meta($post_id, 'down_price', true);
+	}
+
     $price = $price / get_option("ice_proportion_alipay");
     $memberDown=get_post_meta($post_id, 'member_down',TRUE);
     $userType=getUsreMemberType();
@@ -59,19 +78,17 @@ if($price){
 	$subject = get_bloginfo('name').'订单['.get_the_author_meta( 'user_login', wp_get_current_user()->ID ).']';  
 	$out_trade_no = date("ymdhis").mt_rand(100,999).mt_rand(100,999).mt_rand(100,999);		
 	$time = date('Y-m-d H:i:s');
-	if(!empty($price)){
-		$user_Info   = wp_get_current_user();
-		$sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
-		VALUES ('$price','$out_trade_no','".$user_Info->ID."','".$user_type."','".$post_id."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
-		$a=$wpdb->query($sql);
-		if(!$a){
-			wp_die('系统发生错误，请稍后重试!');
-		}else{
-			$money_info=$wpdb->get_row("select * from ".$wpdb->icemoney." where ice_num='".$out_trade_no."'");
-		}
+	
+	$user_Info   = wp_get_current_user();
+	$sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_post_index,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
+	VALUES ('$price','$out_trade_no','".$user_Info->ID."','".$user_type."','".$post_id."','".$index."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
+	$a=$wpdb->query($sql);
+	if(!$a){
+		wp_die('系统发生错误，请稍后重试!');
 	}else{
-		wp_die('请输入您要充值的金额');
+		$money_info=$wpdb->get_row("select * from ".$wpdb->icemoney." where ice_num='".$out_trade_no."'");
 	}
+	
 
 	// (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
 	// 需保证商户系统端不能重复，建议通过数据库sequence生成，

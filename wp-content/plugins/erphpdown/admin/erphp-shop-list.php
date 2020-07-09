@@ -1,7 +1,7 @@
 <?php
 /*
-www.mobantu.com
-82708210@qq.com
+www.yunziyuan.com.cn
+570602783@qq.com
 */
 if ( !defined('ABSPATH') ) {exit;}
 if(!is_user_logged_in()){
@@ -9,7 +9,7 @@ if(!is_user_logged_in()){
 }
 
 $total_trade   = $wpdb->get_var("SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status='publish' and post_type='post' ");
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 $ice_perpage = 50;
 $pages = ceil($total_trade / $ice_perpage);
 $page=isset($_GET['paged']) ?intval($_GET['paged']) :1;
@@ -43,7 +43,7 @@ $list = $wpdb->get_results("SELECT post_title,ID as ice_id,post_date FROM $wpdb-
 	<table class="widefat fixed striped posts">
 		<thead>
 			<tr>
-				<th width="3%"><input type="checkbox" id="checkbox" onclick="selectAll()" ></th>
+				<th width="3%"><input type="checkbox" id="checkbox" onclick="selectAll()" style='margin-left:0'></th>
 				<th>标题</th>
 				<th>价格</th>
 				<th>VIP优惠</th>
@@ -84,11 +84,10 @@ $list = $wpdb->get_results("SELECT post_title,ID as ice_id,post_date FROM $wpdb-
 		var ids = '';
 		jQuery(".checkbox").each(function() {
 			if (jQuery(this).is(':checked')) {
-		      ids += ',' + jQuery(this).val(); //逐个获取id
+		      ids += ',' + jQuery(this).val();
 		  }
 		});
-		ids = ids.substring(1); // 对id进行处理，去除第一个逗号
-		//alert(ids);
+		ids = ids.substring(1);
 		if (ids.length == 0) {
 			alert('请至少选择一项！');
 		} else {
@@ -114,7 +113,6 @@ $list = $wpdb->get_results("SELECT post_title,ID as ice_id,post_date FROM $wpdb-
 			}
 		}
 		return false;
-
 	});
 
 	function editPrice(id){	

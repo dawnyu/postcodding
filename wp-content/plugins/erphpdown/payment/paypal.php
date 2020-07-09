@@ -18,7 +18,7 @@ $msg='';
 require_once('paypal/CallerService.php');
 require_once("paypal/APIError.php");
 
-/*  www.mobantu.com  */
+/*  www.yunziyuan.com.cn  */
 
 /* An express checkout transaction starts with a token, that
 identifies to PayPal your transaction
@@ -81,8 +81,25 @@ if(! isset($token))
 
 	$post_id   = isset($_GET['ice_post']) && is_numeric($_GET['ice_post']) ?$_GET['ice_post'] :0;
 	$user_type   = isset($_GET['ice_type']) && is_numeric($_GET['ice_type']) ?$_GET['ice_type'] :'';
+	$index   = isset($_GET['index']) && is_numeric($_GET['index']) ?$_GET['index'] :'';
 	if($post_id){
-	    $price=get_post_meta($post_id, 'down_price', true);
+	    if($index){
+	        $urls = get_post_meta($post_id, 'down_urls', true);
+	        if($urls){
+	            $cnt = count($urls['index']);
+	            if($cnt){
+	                for($i=0; $i<$cnt;$i++){
+	                    if($urls['index'][$i] == $index){
+	                        $index_name = $urls['name'][$i];
+	                        $price = $urls['price'][$i];
+	                        break;
+	                    }
+	                }
+	            }
+	        }
+	    }else{
+	        $price=get_post_meta($post_id, 'down_price', true);
+	    }
 	    $price = $price / get_option("ice_proportion_alipay");
 	    $memberDown=get_post_meta($post_id, 'member_down',TRUE);
 	    $userType=getUsreMemberType();
@@ -123,8 +140,8 @@ if(! isset($token))
 	{
 		$user_Info   = wp_get_current_user();
 		$rmbPrice=round(get_option('ice_payapl_api_rmb')*$price,2);
-		$sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
-		VALUES ('$rmbPrice','$num','".$user_Info->ID."','".$user_type."','".$post_id."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
+		$sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_post_index,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
+		VALUES ('$rmbPrice','$num','".$user_Info->ID."','".$user_type."','".$post_id."','".$index."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
 		$a=$wpdb->query($sql);
 		if(!$a)
 		{
@@ -230,7 +247,7 @@ else
 			//查询订单号
 			if(erphpCheckAlipayReturnNum($num,$money) && mbtcheck()>0)
 			{
-				erphpSetUserOrderIsSuccess($num,$money);//更新充值订单为完成，并增加总资产
+				epd_set_order_success($num,$money,'paypal');
 				$re = get_option('erphp_url_front_success');
 				if(isset($_COOKIE['erphpdown_return']) && $_COOKIE['erphpdown_return']){
 				    $re = $_COOKIE['erphpdown_return'];

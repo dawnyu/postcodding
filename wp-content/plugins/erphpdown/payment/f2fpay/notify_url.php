@@ -10,13 +10,13 @@ $trade_no = $wpdb->escape($_POST['trade_no']);
 $buyer_logon_id = $wpdb->escape($_POST['buyer_logon_id']);
 $status = $_POST['trade_status'];
 
-ksort($_POST); //排序post参数
-reset($_POST); //内部指针指向数组中的第一个元素
-$signStr = '';//初始化
-foreach ($_POST AS $key => $val) { //遍历POST参数
-    if ($val == '' || $key == 'sign' || $key == 'sign_type') continue; //跳过这些不签名
-    if ($signStr) $signStr .= '&'; //第一个字符串签名不加& 其他加&连接起来参数
-    $signStr .= "$key=$val"; //拼接为url参数形式
+ksort($_POST);
+reset($_POST);
+$signStr = '';
+foreach ($_POST AS $key => $val) { 
+    if ($val == '' || $key == 'sign' || $key == 'sign_type') continue;
+    if ($signStr) $signStr .= '&';
+    $signStr .= "$key=$val";
 }
 $signStr = str_replace('\"', '"', $signStr);
 $res = "-----BEGIN PUBLIC KEY-----\n".wordwrap($config['alipay_public_key'], 64, "\n", true) ."\n-----END PUBLIC KEY-----";
@@ -51,74 +51,7 @@ if($result){
 				}
 			}
 		}else{
-
-			$money_info=$wpdb->get_row("select * from ".$wpdb->icemoney." where ice_num='".$out_trade_no."'");
-			if($money_info){
-				if(!$money_info->ice_success){
-					if(!$money_info->ice_post_id && !$money_info->ice_user_type){
-						$epd_game_price  = get_option('epd_game_price');
-						if($epd_game_price){
-							$cnt = count($epd_game_price['buy']);
-							for($i=0; $i<$cnt;$i++){
-								if($total_fee == $epd_game_price['buy'][$i]){
-									$total_fee = $epd_game_price['get'][$i];
-									break;
-								}
-							}
-						}
-					}
-
-					addUserMoney($money_info->ice_user_id, $total_fee*get_option('ice_proportion_alipay'));
-					$wpdb->query("UPDATE $wpdb->icemoney SET ice_money = '".$total_fee*get_option('ice_proportion_alipay')."', ice_alipay = '".$buyer_logon_id."',ice_success=1, ice_success_time = '".date("Y-m-d H:i:s")."' WHERE ice_num = '".$out_trade_no."'");
-
-					if($money_info->ice_post_id){
-						$okMoney=erphpGetUserOkMoneyById($money_info->ice_user_id);
-		                $postid = $money_info->ice_post_id;
-		                $price=$total_fee*get_option('ice_proportion_alipay');
-		                if($okMoney >= $price){
-		                    if(erphpSetUserMoneyXiaoFeiByUid($price,$money_info->ice_user_id))
-		                    {
-		                        $subject   = get_post($postid)->post_title;
-		                        $postUserId=get_post($postid)->post_author;
-		                        $data=get_post_meta($postid, 'down_url', true);
-		                        $result=erphpAddDownloadByUid($subject, $postid, $money_info->ice_user_id,$price,1, '', $postUserId);
-		                        if($result)
-		                        {
-		                        	$down_activation = get_post_meta($postid, 'down_activation', true);
-		                        	if($down_activation && function_exists('doErphpAct')){
-										$activation_num = doErphpAct($money_info->ice_user_id,$postid);
-										$wpdb->query("update $wpdb->icealipay set ice_data = '".$activation_num."' where ice_url='".$result."'");
-										$cuser = get_user_by('id',$money_info->ice_user_id);
-										if($cuser && $cuser->user_email){
-											wp_mail($cuser->user_email, '【'.$subject.'】注册码', '您购买的资源【'.$subject.'】注册码：'.$activation_num);
-										}
-									}
-								
-		                            $ice_ali_money_author = get_option('ice_ali_money_author');
-									if($ice_ali_money_author){
-										addUserMoney($postUserId,$price*$ice_ali_money_author/100);
-									}elseif($ice_ali_money_author == '0'){
-
-									}else{
-										addUserMoney($postUserId,$price);
-									}
-		                            
-		                            $EPD = new EPD();
-									$EPD->doAff($price, $money_info->ice_user_id);
-		                        } 
-		                    }
-		                }
-					}elseif($money_info->ice_user_type){
-						addUserMoney($money_info->ice_user_id, '-'.$total_fee*get_option('ice_proportion_alipay'));
-						userSetMemberSetData($money_info->ice_user_type,$money_info->ice_user_id);
-						addVipLogByAdmin($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_type, $money_info->ice_user_id);
-
-						$EPD = new EPD();
-						$EPD->doAff($total_fee*get_option('ice_proportion_alipay'), $money_info->ice_user_id);
-							
-					}
-				}
-			}
+			epd_set_order_success($out_trade_no,$total_fee,'alipay');
 		}
 
 	    echo "success";

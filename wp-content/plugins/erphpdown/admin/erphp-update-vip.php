@@ -50,7 +50,7 @@
 		echo '<div class="error settings-error"><p>会员类型错误！</p></div>';
 	}
 }
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 $ciphp_life_price    = get_option('ciphp_life_price');
 $ciphp_year_price    = get_option('ciphp_year_price');
 $ciphp_quarter_price = get_option('ciphp_quarter_price');
@@ -104,7 +104,7 @@ $ciphp_day_price  = get_option('ciphp_day_price');
 				<input type="radio" id="userType" name="userType" value="10" checked />终身会员 --- <?php echo $ciphp_life_price?><?php echo get_option('ice_name_alipay')?><br /> 
 				<input type="radio" id="userType" name="userType" value="9" />包年会员 --- <?php echo $ciphp_year_price?><?php echo get_option('ice_name_alipay')?><br /> 
 				<input type="radio" id="userType" name="userType" value="8" />包季会员 --- <?php echo $ciphp_quarter_price?><?php echo get_option('ice_name_alipay')?><br />
-				<input type="radio" id="userType" name="userType" value="7" />包月会员 --- <?php echo $ciphp_month_price?><?php echo get_option('ice_name_alipay')?>
+				<input type="radio" id="userType" name="userType" value="7" />包月会员 --- <?php echo $ciphp_month_price?><?php echo get_option('ice_name_alipay')?><br />
 				<input type="radio" id="userType" name="userType" value="6" />体验会员 --- <?php echo $ciphp_day_price?><?php echo get_option('ice_name_alipay')?>
 			</td>
 		</tr>

@@ -6,7 +6,7 @@ if(!is_user_logged_in())
 }
 ?>
 <?php 
-/////////////////////////////////////////////////www.mobantu.com   82708210@qq.com
+/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 if($_POST)
 {
 	$paytype=esc_sql(intval($_POST['paytype']));

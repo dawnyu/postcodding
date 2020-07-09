@@ -17,8 +17,25 @@ if(!is_user_logged_in()){wp_die('请先登录！','提示');}
 
 $post_id   = isset($_GET['ice_post']) && is_numeric($_GET['ice_post']) ?$_GET['ice_post'] :0;
 $user_type   = isset($_GET['ice_type']) && is_numeric($_GET['ice_type']) ?$_GET['ice_type'] :'';
+$index   = isset($_GET['index']) && is_numeric($_GET['index']) ?$_GET['index'] :'';
 if($post_id){
-    $price=get_post_meta($post_id, 'down_price', true);
+    if($index){
+        $urls = get_post_meta($post_id, 'down_urls', true);
+        if($urls){
+            $cnt = count($urls['index']);
+            if($cnt){
+                for($i=0; $i<$cnt;$i++){
+                    if($urls['index'][$i] == $index){
+                        $index_name = $urls['name'][$i];
+                        $price = $urls['price'][$i];
+                        break;
+                    }
+                }
+            }
+        }
+    }else{
+        $price=get_post_meta($post_id, 'down_price', true);
+    }
     $price = $price / get_option("ice_proportion_alipay");
     $memberDown=get_post_meta($post_id, 'member_down',TRUE);
     $userType=getUsreMemberType();
@@ -60,8 +77,8 @@ $subject = get_bloginfo('name').'订单['.get_the_author_meta( 'user_login', wp_
 
 if($price > 0){
     $user_Info   = wp_get_current_user();
-    $sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
-    VALUES ('$price','$trade_order_id','".$user_Info->ID."','".$user_type."','".$post_id."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
+    $sql="INSERT INTO $wpdb->icemoney (ice_money,ice_num,ice_user_id,ice_user_type,ice_post_id,ice_post_index,ice_time,ice_success,ice_note,ice_success_time,ice_alipay)
+    VALUES ('$price','$trade_order_id','".$user_Info->ID."','".$user_type."','".$post_id."','".$index."','".date("Y-m-d H:i:s")."',0,'0','".date("Y-m-d H:i:s")."','')";
     $a=$wpdb->query($sql);
     if(!$a){
         wp_die('系统发生错误，请稍后重试!');
@@ -80,7 +97,7 @@ $logged_ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? esc_sql($_SERVER['HTTP_X_
 $result = erphpdown_curl_post($api,"order_id=".$trade_order_id."&order_type=".$order_type."&order_price=".$price."&order_ip=".$logged_ip."&order_name=".$subject."&sign=".$sign."&redirect_url=".constant("erphpdown")."payment/paypy/notify.php"."&extension=erphpdown");
 $result = trim($result, "\xEF\xBB\xBF");
 $resultArray = json_decode($result,true);
-if($resultArray['code'] == '-1'){
+if($resultArray['code'] != '1'){
 	echo '获取支付失败：'.$resultArray['msg'];
 }else{
 ?>

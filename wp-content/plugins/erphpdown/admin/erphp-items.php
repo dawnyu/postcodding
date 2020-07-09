@@ -1,7 +1,7 @@
 <?php
 /*
-www.mobantu.com
-82708210@qq.com
+www.yunziyuan.com.cn
+570602783@qq.com
 */
 if ( !defined('ABSPATH') ) {exit;}
 if(current_user_can('administrator'))
@@ -68,7 +68,7 @@ else
 			}
 			else
 			{
-				echo '<tr><td colspan="6" align="center"><strong>没有交易记录</strong></td></tr>';
+				echo '<tr><td colspan="7" align="center"><strong>没有交易记录</strong></td></tr>';
 			}
 			?>
 		</tbody>
