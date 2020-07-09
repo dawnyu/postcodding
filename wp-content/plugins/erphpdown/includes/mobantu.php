@@ -1573,7 +1573,8 @@ function erphpdown_shortcode_see($atts, $content=null){
 			}else{
 				$content='<fieldset class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block"><legend>内容查看</legend>';
 				if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
-					$content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+          // $content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+          $content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'" target="_blank">登录</a>';
 				}else{
 					if($price){
 						$content.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
