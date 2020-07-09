@@ -18,7 +18,6 @@
 		echo'<div class="updated settings-error"><p>更新成功！</p></div>';
 
 	}
-/////////////////////////////////////////////////www.yunziyuan.com.cn   570602783@qq.com
 	$ciphp_life_price    = get_option('ciphp_life_price');
 	$ciphp_year_price    = get_option('ciphp_year_price');
 	$ciphp_quarter_price = get_option('ciphp_quarter_price');

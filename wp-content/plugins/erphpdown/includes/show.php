@@ -1,9 +1,4 @@
 <?php
-/**
-author: www.yunziyuan.com.cn
-QQ: 570602783
-email: 570602783@qq.com
-*/
 if ( !defined('ABSPATH') ) {exit;}
 function erphpdown_content_show($content){
 	$down_box_hide = get_post_meta(get_the_ID(), 'down_box_hide', true);

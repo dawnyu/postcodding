@@ -1,8 +1,5 @@
 <?php
-/*
-www.yunziyuan.com.cn
-570602783@qq.com
-*/
+
 if ( !defined('ABSPATH') ) {exit;}
 $user_Info=wp_get_current_user();
 $total_trade   = $wpdb->get_var("SELECT COUNT(ice_id) FROM $wpdb->vip where ice_user_id in (select ID from $wpdb->users where father_id=".$user_Info->ID.")");

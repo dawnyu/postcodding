@@ -1,8 +1,5 @@
 <?php
-/*
-www.yunziyuan.com.cn
-570602783@qq.com
-*/
+
 if ( !defined('ABSPATH') ) {exit;}
 if(current_user_can('administrator'))
 {

@@ -1,7 +1,6 @@
 <?php
 /*
 mobantu.com
-qq 570602783
 */
 if ( !defined('ABSPATH') ) {exit;}
 
