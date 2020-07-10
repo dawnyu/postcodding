@@ -60,6 +60,7 @@ jQuery(function($){
                 }, function(data) {
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
+                        debugger
                         if (obj.redirect_to) {
                           history.go(-2);
                         } else {
