@@ -1173,7 +1173,7 @@ function erphpdown_shortcode_box(){
 							
 						}else{
 							if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
-								$content.='抱歉，此资源仅限VIP下载，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+                $content.='抱歉，此资源仅限VIP下载，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
 							}else{
 								if($price){
 									$content.='此资源下载价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
@@ -1574,10 +1574,12 @@ function erphpdown_shortcode_see($atts, $content=null){
 				$content='<fieldset class="erphpdown erphpdown-see erphpdown-content-vip" id="erphpdown" style="display:block"><legend>内容查看</legend>';
 				if($memberDown == 4 || $memberDown == 8 || $memberDown == 9){
           // $content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
-          $content.='此隐藏内容仅限VIP查看，请先<a href="'.$erphp_url_front_login.'">登录</a>';
+          $content.='<a href="'.$erphp_url_front_login.'">登录</a>查看隐藏内容';
 				}else{
 					if($price){
-						$content.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" target="_blank" class="erphp-login-must">登录</a>';
+            $content.= '<a href="'.$erphp_url_front_login.'">登录</a>查看隐藏内容';
+            // $content.='此隐藏内容查看价格为<span class="erphpdown-price">'.$price.'</span>'.get_option('ice_name_alipay').'，请先<a href="'.$erphp_url_front_login.'" class="erphp-login-must">登录</a>';
+
 					}
 				}
 				

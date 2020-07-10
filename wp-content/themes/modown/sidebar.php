@@ -95,20 +95,20 @@
 							}
 						}
 					}else{
-						// if($memberDown==3){
-						// 	echo '<div class="item vip">VIP可免费下载'.$vip.'</div>';
-						// }elseif($memberDown==2){
-						// 	echo '<div class="item vip">VIP可5折下载'.$vip.'</div>';
-						// }elseif($memberDown==5){
-						// 	echo '<div class="item vip">VIP可8折下载'.$vip.'</div>';
-						// }elseif($memberDown==6){
-						// 	echo '<div class="item vip">包年VIP可免费下载'.$vip.'</div>';
-						// }elseif($memberDown==7){
-						// 	echo '<div class="item vip">终身VIP可免费下载'.$vip.'</div>';
-						// }elseif($memberDown==4 || $memberDown == 8 || $memberDown == 9){
-						// 	echo '<div class="item vip vip-only">仅对VIP开放下载'.$vip.'</div>';
-						// }
-						echo '<a href="javascript:;" class="down signin-loader">登录查看</a>';
+						if($memberDown==3){
+							echo '<div class="item vip">VIP可免费下载'.$vip.'</div>';
+						}elseif($memberDown==2){
+							echo '<div class="item vip">VIP可5折下载'.$vip.'</div>';
+						}elseif($memberDown==5){
+							echo '<div class="item vip">VIP可8折下载'.$vip.'</div>';
+						}elseif($memberDown==6){
+							echo '<div class="item vip">包年VIP可免费下载'.$vip.'</div>';
+						}elseif($memberDown==7){
+							echo '<div class="item vip">终身VIP可免费下载'.$vip.'</div>';
+						}elseif($memberDown==4 || $memberDown == 8 || $memberDown == 9){
+							echo '<div class="item vip vip-only">仅对VIP开放下载'.$vip.'</div>';
+						}
+						echo '<a href="javascript:;" class="down signin-loader">请先登录</a>';
 					}
 				}else{
 					if(is_user_logged_in()){
@@ -116,7 +116,7 @@
 							echo '<a href='.constant("erphpdown").'download.php?postid='.get_the_ID().' target="_blank" class="down">立即下载</a>';
 						}
 					}else{
-						echo '<a href="javascript:;" class="down signin-loader vip">请先登录</a>';
+						echo '<a href="javascript:;" class="down signin-loader">请先登录</a>';
 					}
 				}
 
@@ -364,20 +364,20 @@
 							}
 						}
 					}else{
-						// if($memberDown==3){
-						// 	echo '<div class="item vip">VIP可免费查看'.$vip.'</div>';
-						// }elseif($memberDown==2){
-						// 	echo '<div class="item vip">VIP可5折查看'.$vip.'</div>';
-						// }elseif($memberDown==5){
-						// 	echo '<div class="item vip">VIP可8折查看'.$vip.'</div>';
-						// }elseif($memberDown==6){
-						// 	echo '<div class="item vip">包年VIP可免费查看'.$vip.'</div>';
-						// }elseif($memberDown==7){
-						// 	echo '<div class="item vip">终身VIP可免费查看'.$vip.'</div>';
-						// }elseif($memberDown==4 || $memberDown == 8 || $memberDown == 9){
-						// 	echo '<div class="item vip vip-only">仅对VIP开放查看'.$vip.'</div>';
-						// }
-						echo '<a href="javascript:;" class="down signin-loader vip">登录查看</a>';
+						if($memberDown==3){
+							echo '<div class="item vip">VIP可免费查看'.$vip.'</div>';
+						}elseif($memberDown==2){
+							echo '<div class="item vip">VIP可5折查看'.$vip.'</div>';
+						}elseif($memberDown==5){
+							echo '<div class="item vip">VIP可8折查看'.$vip.'</div>';
+						}elseif($memberDown==6){
+							echo '<div class="item vip">包年VIP可免费查看'.$vip.'</div>';
+						}elseif($memberDown==7){
+							echo '<div class="item vip">终身VIP可免费查看'.$vip.'</div>';
+						}elseif($memberDown==4 || $memberDown == 8 || $memberDown == 9){
+							echo '<div class="item vip vip-only">仅对VIP开放查看'.$vip.'</div>';
+						}
+						echo '<a href="javascript:;" class="down signin-loader">请先登录</a>';
 					}
 				}else{
 					if(is_user_logged_in()){
