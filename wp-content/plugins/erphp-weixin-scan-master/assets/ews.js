@@ -11,6 +11,7 @@ jQuery(function($){
                     "code": code
                 }, function(data) {
                     if(data.status == "1"){
+                      alert('登录成功')
                         location.reload();
                     }else{
                         that.removeClass("disabled");
@@ -47,7 +48,6 @@ jQuery(function($){
     }
 
     $(".ews-bind-button").click(function(){
-      alert('.ews-bind-button')
         var that = $(this),
             code = that.prev().val();
         if(code){
