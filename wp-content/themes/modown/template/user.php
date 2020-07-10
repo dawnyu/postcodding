@@ -4,8 +4,8 @@
 	description: template for mobantu.com modown theme 
 */
 if(!is_user_logged_in()){
-  // header("Location:".get_permalink(MBThemes_page("template/login.php")));
-  	header("Location:".get_permalink('wxlogin'));
+  console.log(11);
+  header("Location:".get_permalink(MBThemes_page("template/login.php")));
 }
 get_header();
 if(wp_is_erphpdown_active()){
