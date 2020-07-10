@@ -39,12 +39,12 @@ class erphpWeixinScan {
 
                 $exist = $wpdb->get_var("select id from $ews_table where openid='".$openid."'");
                 if($exist){
-                    $code = rand(10000000,99999999);
+                    $code = rand(100000,999999);
                     $result = $wpdb->query("update $ews_table set scene_id = '".$code."', update_time = '".date("Y-m-d H:i:s")."' where id='".$exist."'");
                 }else{
                     $access_token = $this->getAccessToken();
                     $userinfo = $this->getUserinfo($openid, $access_token);
-                    $code = rand(10000000,99999999);
+                    $code = rand(100000,999999);
                     $result = $wpdb->query("insert into $ews_table (scene_id,openid,unionid,access_token,nickname,avatar,create_time,update_time) values('".$code."','".$openid."','".$userinfo['unionid']."','".$access_token."','".ews_filter_nickname($userinfo['nickname'])."','".$userinfo['headimgurl']."','".date("Y-m-d H:i:s")."','".date("Y-m-d H:i:s")."')");
                 }
 
@@ -77,12 +77,12 @@ class erphpWeixinScan {
 
                 $exist = $wpdb->get_var("select id from $ews_table where openid='".$openid."'");
                 if($exist){
-                    $code = rand(10000000,99999999);
+                    $code = rand(100000,999999);
                     $result = $wpdb->query("update $ews_table set scene_id = '".$code."', update_time = '".date("Y-m-d H:i:s")."' where id='".$exist."'");
                 }else{
                     $access_token = $this->getAccessToken();
                     $userinfo = $this->getUserinfo($openid, $access_token);
-                    $code = rand(10000000,99999999);
+                    $code = rand(100000,999999);
                     $result = $wpdb->query("insert into $ews_table (scene_id,openid,unionid,access_token,nickname,avatar,create_time,update_time) values('".$code."','".$openid."','".$userinfo['unionid']."','".$access_token."','".ews_filter_nickname($userinfo['nickname'])."','".$userinfo['headimgurl']."','".date("Y-m-d H:i:s")."','".date("Y-m-d H:i:s")."')");
                 }
 
