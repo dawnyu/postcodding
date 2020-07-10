@@ -4,7 +4,7 @@ Template Name: erphpdown个人中心
 Version: 11.0+
 */
 if(!is_user_logged_in()){
-	echo "<script>window.location.href='".wp_login_url()."';</script>";
+	echo "<script>window.location.href='http://www.baidu.com';</script>";
 }
 get_header(); 
 global $wpdb, $erphpdown_version;
