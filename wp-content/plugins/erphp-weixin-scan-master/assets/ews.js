@@ -20,8 +20,10 @@ jQuery(function($){
                 }, function(data) {
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
-                        if (obj.redirect_to) {
+                        if (obj.redirect_to === 'page') {
                           history.back();
+                        } else if (obj.redirect_to === 'vip') {
+                          history.go(-2);
                         } else {
                           location.reload();
                         }
@@ -63,7 +65,9 @@ jQuery(function($){
                 }, function(data) {
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
-                        if (obj.redirect_to) {
+                        if (obj.redirect_to === 'page') {
+                          history.back();
+                        } else if (obj.redirect_to === 'vip') {
                           history.go(-2);
                         } else {
                           location.reload();
