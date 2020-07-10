@@ -21,7 +21,7 @@ jQuery(function($){
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
                         if (obj.redirect_to) {
-                          history.go(-2);
+                          history.back();
                         } else {
                           location.reload();
                         }
