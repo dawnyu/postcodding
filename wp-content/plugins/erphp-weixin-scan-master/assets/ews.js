@@ -85,11 +85,12 @@ jQuery(function($){
                 });
             }
         }else{
+          layer.msg("请输入验证码～456");
             if(typeof(layer) != "undefined"){
                 layer.msg("请输入验证码～");
             }else{
                 alert("请输入验证码～");
-                layer.msg("请输入验证码～456");
+                layer.msg("请输入验证码～");
             }
         }
         return false;
