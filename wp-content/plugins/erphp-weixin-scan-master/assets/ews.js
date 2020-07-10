@@ -1,3 +1,11 @@
+function parseUrl(_url) {
+  const pattern = /(\w+)=(\w+|[\u4E00-\u9FA5]+)/ig;
+  const parames = {};
+  _url.replace(pattern, (a, b, c) => {
+    parames[b] = decodeURIComponent(c);
+  });
+  return parames;
+}
 jQuery(function($){
     $(".ews-button").click(function(){
         var that = $(this),
@@ -11,7 +19,12 @@ jQuery(function($){
                     "code": code
                 }, function(data) {
                     if(data.status == "1"){
-                        location.reload();
+                        var obj = parseUrl(window.location.href);
+                        if (obj.redirect_to) {
+                          history.go(-2);
+                        } else {
+                          location.reload();
+                        }
                     }else{
                         that.removeClass("disabled");
                         that.text("验证登录");
@@ -26,7 +39,6 @@ jQuery(function($){
                 });
             }
         }else{
-          layer.msg("请输入验证码～123");
             if(typeof(logtips) != "undefined"){
                 logtips("请输入验证码～");
             }else if(typeof(layer) != "undefined"){
@@ -37,15 +49,6 @@ jQuery(function($){
         }
         return false;
     });
-
-    function parseUrl(_url) {
-      const pattern = /(\w+)=(\w+|[\u4E00-\u9FA5]+)/ig;
-      const parames = {};
-      _url.replace(pattern, (a, b, c) => {
-        parames[b] = decodeURIComponent(c);
-      });
-      return parames;
-    }
 
     $(".ews-bind-button").click(function(){
         var that = $(this),
@@ -85,7 +88,6 @@ jQuery(function($){
                 });
             }
         }else{
-          layer.msg("请输入验证码～456");
             if(typeof(layer) != "undefined"){
                 layer.msg("请输入验证码～");
             }else{
