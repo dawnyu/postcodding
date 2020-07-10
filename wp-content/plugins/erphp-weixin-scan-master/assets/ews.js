@@ -11,7 +11,6 @@ jQuery(function($){
                     "code": code
                 }, function(data) {
                     if(data.status == "1"){
-                      alert('登录成功')
                         location.reload();
                     }else{
                         that.removeClass("disabled");
@@ -27,6 +26,7 @@ jQuery(function($){
                 });
             }
         }else{
+          layer.msg("请输入验证码～123");
             if(typeof(logtips) != "undefined"){
                 logtips("请输入验证码～");
             }else if(typeof(layer) != "undefined"){
@@ -89,6 +89,7 @@ jQuery(function($){
                 layer.msg("请输入验证码～");
             }else{
                 alert("请输入验证码～");
+                layer.msg("请输入验证码～456");
             }
         }
         return false;
