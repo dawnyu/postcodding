@@ -4,6 +4,7 @@
 	description: template for mobantu.com modown theme 
 */
 if(!is_user_logged_in()){
+  alert(32323)
 	header("Location:".get_permalink(MBThemes_page("template/login.php")));
 }
 get_header();
