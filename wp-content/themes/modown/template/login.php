@@ -10,7 +10,7 @@
 			header("Location:".get_permalink(MBThemes_page('template/user.php')));
 		}
 	} else {
-    header("Location:".$_SERVER['SERVER_NAME']."/wxlogin");
+    header("Location:/wxlogin");
   }
 ?>
 <!DOCTYPE html>
