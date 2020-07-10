@@ -47,7 +47,7 @@ jQuery(function($){
     }
 
     $(".ews-bind-button").click(function(){
-      console.log('.ews-bind-button')
+      alert('.ews-bind-button')
         var that = $(this),
             code = that.prev().val();
         if(code){
@@ -60,7 +60,6 @@ jQuery(function($){
                 }, function(data) {
                     if(data.status == "1"){
                         var obj = parseUrl(window.location.href);
-                        debugger
                         if (obj.redirect_to) {
                           history.go(-2);
                         } else {
