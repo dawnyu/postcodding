@@ -1002,7 +1002,7 @@ function erphpdown_shortcode_box(){
 						$tname = '内容查看';
 					}
 					if($memberDown == 3){
-						$content .= $tname.'价格<span class="erphpdown-price">'.$price.'</span>元<a href="javascript:;" class="erphp-wppay-loader erphpdown-buy" data-post="'.get_the_ID().'">立即支付</a>&nbsp;&nbsp;<b>或</b>&nbsp;&nbsp;升级VIP后免费<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a>';
+						$content .= $tname.'价格<span class="erphpdown-price">'.$price.'</span>元<a href="javascript:;" class="erphp-wppay-loader erphpdown-buy" data-post="'.get_the_ID().'">立即支付</a>&nbsp;&nbsp;<b>或</b>&nbsp;&nbsp;升级VIP后免费<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a>';
 					}else{
 						$content .= $tname.'价格<span class="erphpdown-price">'.$price.'</span>元<a href="javascript:;" class="erphp-wppay-loader erphpdown-buy" data-post="'.get_the_ID().'">立即支付</a>';	
 					}
@@ -1047,7 +1047,7 @@ function erphpdown_shortcode_box(){
 								}
 
 								if($memberDown > 1){
-									$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a>';
+									$vipText = '<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a>';
 									if($userType){
 										$vipText = '';
 									}
@@ -1059,12 +1059,12 @@ function erphpdown_shortcode_box(){
 										$content.='（VIP 8折'.$vipText.'）';
 									}elseif ($memberDown==6 && $down_info==null){
 										if($userType < 9){
-											$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级年费VIP</a>';
+											$vipText = '<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级年费VIP</a>';
 										}
 										$content.='（年费VIP免费'.$vipText.'）';
 									}elseif ($memberDown==7 && $down_info==null){
 										if($userType < 10){
-											$vipText = '<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级终身VIP</a>';
+											$vipText = '<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级终身VIP</a>';
 										}
 										$content.='（终身VIP免费'.$vipText.'）';
 									}elseif ($memberDown==4){
@@ -1605,7 +1605,7 @@ function erphpdown_shortcode_vip($atts, $content=null){
 		$erphp_url_front_login = get_option('erphp_url_front_login');
 	}
 
-	$vip = '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+	$vip = '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" class="erphpdown-vip">升级VIP</a></fieldset>';
 
 	if(is_user_logged_in()){
 		$userType=getUsreMemberType();
@@ -1617,15 +1617,15 @@ function erphpdown_shortcode_vip($atts, $content=null){
 			}
 		}else{
 			if($atts['type'] == '6' && $userType < 6){
-				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限VIP查看<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '7' && $userType < 7){
-				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包月VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包月VIP查看<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '8' && $userType < 8){
-				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包季VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包季VIP查看<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '9' && $userType < 9){
-				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包年VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限包年VIP查看<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a></fieldset>';
 			}elseif($atts['type'] == '10' && $userType < 10){
-				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限终身VIP查看<a href="'.$erphp_url_front_vip.'" target="_blank" class="erphpdown-vip">升级VIP</a></fieldset>';
+				return '<fieldset id="erphpdown" class="erphpdown erphpdown-see erphpdown-content-vip" style="display:block"><legend>内容查看</legend>此隐藏内容仅限终身VIP查看<a href="'.$erphp_url_front_vip.'"  class="erphpdown-vip">升级VIP</a></fieldset>';
 			}else{
 				return do_shortcode($content);
 			}
